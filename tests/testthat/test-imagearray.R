@@ -1,3 +1,4 @@
+require(DelayedArray, quietly = TRUE)
 rgb <- seq_len(255)
 
 test_that("ImageArray()", {
@@ -155,30 +156,4 @@ for (v in names(z)) {
                      realize(data(imgarray2, 3)))
     expect_equal(meta(imgarray),meta(imgarray2))
   })
-  
-  # test_that("write v3 uses Python-readable codec ordering", {
-  #   td <- tempdir()
-  #   zarr.path <- file.path(td, "test_v3.zarr")
-  #   unlink(zarr.path, recursive = TRUE)
-  # 
-  #   set.seed(1)
-  #   img <- array(sample(1:255, size = 20 * 20 * 3, replace = TRUE),
-  #                dim = c(3, 20, 20))
-  #   imgarray <- ImageArray(img, axes = c("c", "y", "x"))
-  #   sd <- SpatialData(images = list(test_image = imgarray))
-  # 
-  #   writeSpatialData(sd, "test_v3.zarr", path = td, version = "v3")
-  # 
-  #   metadata <- jsonlite::read_json(
-  #     file.path(zarr.path, "images", "test_image", "0", "zarr.json"),
-  #     simplifyVector = FALSE
-  #   )
-  #   codec_names <- vapply(metadata$codecs, `[[`, character(1), "name")
-  # 
-  #   expect_identical(codec_names, c("transpose", "bytes", "zstd"))
-  #   expect_equal(unname(unlist(metadata$dimension_names)), c("c", "y", "x"))
-  #   expect_equal(metadata$attributes, list())
-  #   expect_equal(metadata$storage_transformers, list())
-  # })
-  
 }

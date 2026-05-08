@@ -69,6 +69,12 @@ writeSpatialData <- function(x, path, replace = TRUE, version = "0.2",
     writeLabel(label(x, .),., path = zarr.path, 
                replace = replace, version = fmt)
   })
+  
+  # write tables
+  . <- lapply(tableNames(x), \(.){
+    writeTable(table(x, .),., path = zarr.path, 
+               replace = replace, version = fmt)
+  })
 
   # # write labels group metadata listing all label names (required by spatialdata spec)
   # # v2: {"labels": [...]}, v3: {"ome": {"labels": [...]}}
@@ -93,9 +99,6 @@ writePoint <- function(x, name, path, replace = TRUE, version = "0.2") {
                                  version = zarr_version(version))
   
   # write meta
-  # zattrs <- as.list(meta(x))
-  # if (version == "v3")
-  #   zattrs$spatialdata_attrs$version <- "0.2"
   Rarr::write_zarr_attributes(zarr.group, new.zattrs = meta(x))
   
   # write data
@@ -124,6 +127,7 @@ writePoint <- function(x, name, path, replace = TRUE, version = "0.2") {
 
 #' @rdname writeSpatialData
 #' @importFrom duckspatial ddbs_write_dataset
+#' @importFrom Rarr write_zarr_attributes
 #' @export
 writeShape <- function(x, name, path, replace = TRUE, version = "0.3") {
   
@@ -134,8 +138,6 @@ writeShape <- function(x, name, path, replace = TRUE, version = "0.3") {
                                  version = zarr_version(version))
   
   # write meta
-  # zattrs <- as.list(meta(x))
-  # if (version == "v3") zattrs$spatialdata_attrs$version <- "0.3"
   Rarr::write_zarr_attributes(zarr.group, new.zattrs = meta(x))
   
   # write data as a single parquet file (matches Python spatialdata convention)
@@ -146,8 +148,7 @@ writeShape <- function(x, name, path, replace = TRUE, version = "0.3") {
   )}
 
 #' @rdname writeSpatialData
-#' @importFrom Rarr write_zarr_array
-#' @importFrom DelayedArray realize
+#' @importFrom Rarr write_zarr_array write_zarr_attributes
 #' @export
 writeImage <- function(x, name, path, replace = TRUE, version = "0.3") {
   
@@ -160,9 +161,7 @@ writeImage <- function(x, name, path, replace = TRUE, version = "0.3") {
   # dimension_names <- .get_multiscale_axes(meta(x))
   dimension_names <- vapply(axes(meta(x)), \(.) .$name, character(1))
 
-  # write meta: for v3, OME-NGFF content goes under "ome" key in attributes
-  # zattrs <- .wrap_ome_for_v3(meta(x), version)
-  # if (version == "v3") zattrs$spatialdata_attrs$version <- "0.3"
+  # write meta:
   Rarr::write_zarr_attributes(zarr.group, new.zattrs = meta(x))
   
   # write data
@@ -179,15 +178,12 @@ writeImage <- function(x, name, path, replace = TRUE, version = "0.3") {
                              order = "C",
                              dimension_separator = "/",
                              zarr_version = zarr_version(version))
-      # if (version == "v3")
-      #   .normalize_v3_array_metadata(file.path(zarr.group, .))
     }
   )
 }
 
 #' @rdname writeSpatialData
-#' @importFrom Rarr write_zarr_array
-#' @importFrom DelayedArray realize
+#' @importFrom Rarr write_zarr_array write_zarr_attributes
 #' @export
 writeLabel <- function(x, name, path, replace = TRUE, version = "0.3") {
   
@@ -200,9 +196,7 @@ writeLabel <- function(x, name, path, replace = TRUE, version = "0.3") {
   # dimension_names <- .get_multiscale_axes(meta(x))
   dimension_names <- vapply(axes(meta(x)), \(.) .$name, character(1))
   
-  # write meta: for v3, OME-NGFF content goes under "ome" key in attributes
-  # zattrs <- .wrap_ome_for_v3(meta(x), version)
-  # if (version == "v3") zattrs$spatialdata_attrs$version <- "0.3"
+  # write meta:
   Rarr::write_zarr_attributes(zarr.group, new.zattrs = meta(x))
   
   # write data
@@ -221,3 +215,25 @@ writeLabel <- function(x, name, path, replace = TRUE, version = "0.3") {
     }
   )
 }
+
+#' @rdname writeSpatialData
+#' @importFrom Rarr write_zarr_attributes
+#' @importFrom anndataR write_zarr
+#' @export
+writeTable <- function(x, name, path, replace = TRUE, version = "0.2") {
+  
+  # if no Table were written before, update zarr store
+  zarr.group <- .make_zarr_group(x, name, 
+                                 file.path(path, "tables"), 
+                                 replace,
+                                 version = zarr_version(version))
+  
+  # write meta:
+  Rarr::write_zarr_attributes(zarr.group, new.zattrs = meta(x))
+  
+  # write data
+  if(zarr_version(version) == 3)
+    stop("Write support for anndata v3 zarr is not supported yet!")
+  anndataR::write_zarr(x, path = zarr.group, mode = "a")
+}
+

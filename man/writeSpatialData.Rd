@@ -18,6 +18,8 @@ writeShape(x, name, path, replace = TRUE, version = "0.3")
 writeImage(x, name, path, replace = TRUE, version = "0.3")
 
 writeLabel(x, name, path, replace = TRUE, version = "0.3")
+
+writeTable(x, name, path, replace = TRUE, version = "0.2")
 }
 \arguments{
 \item{x}{For \code{writeSpatialData},

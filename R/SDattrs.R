@@ -214,7 +214,6 @@ setReplaceMethod("version", c("sdArray"), \(x, value) {
   mt <- meta(x)
   if(value == "0.3"){
     if(is.null(mt$ome)){
-      print("here")
       mt$ome = list(omero = mt$omero, 
                     multiscales = mt$multiscales)
       mt$omero <- NULL
@@ -232,4 +231,11 @@ setReplaceMethod("version", c("sdArray"), \(x, value) {
   mt$spatialdata_attrs$version <- value
   meta(x) <- mt
   x
+})
+
+setReplaceMethod("version", c("SingleCellExperiment"), \(x, value) {
+  if(!value %in% c("0.1", "0.2"))
+    stop("Unknown version for table! Must be 0.1 or 0.2")
+  int_metadata(x)$spatialdata_attrs$version <- value
+  return(x)
 })
