@@ -11,15 +11,15 @@
 \usage{
 writeSpatialData(x, path, replace = TRUE, version = "0.2", ...)
 
-writePoint(x, name, path, replace = TRUE, version = "0.2")
+writePoint(x, name, path, replace = TRUE, format = sdFormat("0.1"))
 
-writeShape(x, name, path, replace = TRUE, version = "0.3")
+writeShape(x, name, path, replace = TRUE, format = sdFormat("0.1"))
 
-writeImage(x, name, path, replace = TRUE, version = "0.3")
+writeImage(x, name, path, replace = TRUE, format = sdFormat("0.1"))
 
-writeLabel(x, name, path, replace = TRUE, version = "0.3")
+writeLabel(x, name, path, replace = TRUE, format = sdFormat("0.1"))
 
-writeTable(x, name, path, replace = TRUE, version = "0.2")
+writeTable(x, name, path, replace = TRUE, format = sdFormat("0.1"))
 }
 \arguments{
 \item{x}{For \code{writeSpatialData},

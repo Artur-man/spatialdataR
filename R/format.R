@@ -8,7 +8,7 @@
 #' @return \code{sdFormat}
 #' 
 #' @noRd
-sdFormat <- function(version = "0.2") {
+sdFormat <- function(version = "0.1") {
   switch(as.character(version), 
          "0.2" = {
            .sdFormat(
@@ -44,4 +44,6 @@ setMethod("shape", "sdFormat", \(x) x@shape)
 setMethod("point", "sdFormat", \(x) x@point)
 setMethod("table", "sdFormat", \(x) x@table)
 setMethod("zarr_version", "sdFormat", \(x) x@zarr_version)
+setMethod("zarr_version", "character", \(x) zarr_version(sdFormat(x)))
 setMethod("ome_version", "sdFormat", \(x) x@ome_version)
+setMethod("version", "sdFormat", \(x) x@version)

@@ -30,10 +30,10 @@ NULL
 #' @export
 writeSpatialData <- function(x, path, replace = TRUE, version = "0.2",
                              ...) {
-  fmt <- sdFormat(version)
+  format <- sdFormat(version)
   zarr.path <- .replace_zarr(path, 
                              replace, 
-                             version = zarr_version(fmt))
+                             version = zarr_version(format))
 
   # write root-level spatialdata_attrs for v3 (Python uses this to pick the read path)
   if (version == "0.2")
@@ -49,57 +49,50 @@ writeSpatialData <- function(x, path, replace = TRUE, version = "0.2",
   # write points
   . <- lapply(pointNames(x), \(.){
     writePoint(point(x, .),., path = zarr.path, 
-               replace = replace, version = fmt)
+               replace = replace, format = format)
   })
 
   # write shapes
   . <- lapply(shapeNames(x), \(.){
     writeShape(shape(x, .),., path = zarr.path, 
-               replace = replace, version = fmt)
+               replace = replace, format = format)
   })
 
   # write images
   . <- lapply(imageNames(x), \(.){
     writeImage(image(x, .),., path = zarr.path, 
-               replace = replace, version = fmt)
+               replace = replace, format = format)
   })
 
   # write labels
   . <- lapply(labelNames(x), \(.){
     writeLabel(label(x, .),., path = zarr.path, 
-               replace = replace, version = fmt)
+               replace = replace, format = format)
   })
   
   # write tables
   . <- lapply(tableNames(x), \(.){
     writeTable(table(x, .),., path = zarr.path, 
-               replace = replace, version = fmt)
+               replace = replace, format = format)
   })
-
-  # # write labels group metadata listing all label names (required by spatialdata spec)
-  # # v2: {"labels": [...]}, v3: {"ome": {"labels": [...]}}
-  # lnames <- labelNames(x)
-  # if (length(lnames) > 0L) {
-  #   labels.dir <- file.path(zarr.path, "labels")
-  #   lnames_zattrs <- if (version == "v3")
-  #     list(ome = list(labels = as.list(lnames))) else
-  #     list(labels = as.list(lnames))
-  #   Rarr::write_zarr_attributes(labels.dir, new.zattrs = lnames_zattrs)
-  # }
 }
 
 #' @rdname writeSpatialData
 #' @export
-writePoint <- function(x, name, path, replace = TRUE, version = "0.2") {
+writePoint <- function(x, name, path, replace = TRUE, 
+                       format = sdFormat("0.1")) {
   
   # if no PointFrames were written before, update zarr store
   zarr.group <- .make_zarr_group(x, name, 
                                  file.path(path, "points"), 
                                  replace, 
-                                 version = zarr_version(version))
+                                 version = zarr_version(format))
   
   # write meta
   Rarr::write_zarr_attributes(zarr.group, new.zattrs = meta(x))
+  
+  # version
+  version(x) <- point(format)
   
   # write data
   arrow::write_dataset(.point_to_xy(data(x)), 
@@ -129,16 +122,20 @@ writePoint <- function(x, name, path, replace = TRUE, version = "0.2") {
 #' @importFrom duckspatial ddbs_write_dataset
 #' @importFrom Rarr write_zarr_attributes
 #' @export
-writeShape <- function(x, name, path, replace = TRUE, version = "0.3") {
+writeShape <- function(x, name, path, replace = TRUE, 
+                       format = sdFormat("0.1")) {
   
   # if no ShapeFrames were written before, update zarr store
   zarr.group <- .make_zarr_group(x, name, 
                                  file.path(path, "shapes"), 
                                  replace, 
-                                 version = zarr_version(version))
+                                 version = zarr_version(format))
   
   # write meta
   Rarr::write_zarr_attributes(zarr.group, new.zattrs = meta(x))
+  
+  # version
+  version(x) <- shape(format)
   
   # write data as a single parquet file (matches Python spatialdata convention)
   duckspatial::ddbs_write_dataset(
@@ -150,21 +147,23 @@ writeShape <- function(x, name, path, replace = TRUE, version = "0.3") {
 #' @rdname writeSpatialData
 #' @importFrom Rarr write_zarr_array write_zarr_attributes
 #' @export
-writeImage <- function(x, name, path, replace = TRUE, version = "0.3") {
+writeImage <- function(x, name, path, replace = TRUE, 
+                       format = sdFormat("0.1")) {
   
   # if no ImageArray were written before, update zarr store
   zarr.group <- .make_zarr_group(x, name, 
                                  file.path(path, "images"), 
                                  replace, 
-                                 version = zarr_version(version))
-  
-  # dimension_names <- .get_multiscale_axes(meta(x))
-  dimension_names <- vapply(axes(meta(x)), \(.) .$name, character(1))
+                                 version = zarr_version(format))
 
   # write meta:
   Rarr::write_zarr_attributes(zarr.group, new.zattrs = meta(x))
   
+  # version
+  version(x) <- image(format)
+  
   # write data
+  dimension_names <- vapply(axes(meta(x)), \(.) .$name, character(1))
   lapply(
     .get_multiscales_dataset_paths(meta(x)),
     \(.){
@@ -177,7 +176,7 @@ writeImage <- function(x, name, path, replace = TRUE, version = "0.3") {
                              chunk_dim = dim(arr),
                              order = "C",
                              dimension_separator = "/",
-                             zarr_version = zarr_version(version))
+                             zarr_version = zarr_version(format))
     }
   )
 }
@@ -185,19 +184,23 @@ writeImage <- function(x, name, path, replace = TRUE, version = "0.3") {
 #' @rdname writeSpatialData
 #' @importFrom Rarr write_zarr_array write_zarr_attributes
 #' @export
-writeLabel <- function(x, name, path, replace = TRUE, version = "0.3") {
+writeLabel <- function(x, name, path, replace = TRUE, 
+                       format = sdFormat("0.1")) {
   
   # if no LabelArray were written before, update zarr store
   zarr.group <- .make_zarr_group(x, name, 
                                  file.path(path, "labels"), 
                                  replace,
-                                 version = zarr_version(version))
+                                 version = zarr_version(format))
   
   # dimension_names <- .get_multiscale_axes(meta(x))
   dimension_names <- vapply(axes(meta(x)), \(.) .$name, character(1))
   
   # write meta:
   Rarr::write_zarr_attributes(zarr.group, new.zattrs = meta(x))
+  
+  # version
+  version(x) <- label(format)
   
   # write data
   lapply(
@@ -211,7 +214,7 @@ writeLabel <- function(x, name, path, replace = TRUE, version = "0.3") {
                              chunk_dim = dim(arr),
                              order = "C",
                              dimension_separator = "/",
-                             zarr_version = zarr_version(version))
+                             zarr_version = zarr_version(format))
     }
   )
 }
@@ -220,19 +223,23 @@ writeLabel <- function(x, name, path, replace = TRUE, version = "0.3") {
 #' @importFrom Rarr write_zarr_attributes
 #' @importFrom anndataR write_zarr
 #' @export
-writeTable <- function(x, name, path, replace = TRUE, version = "0.2") {
+writeTable <- function(x, name, path, replace = TRUE, 
+                       format = sdFormat("0.1")) {
   
   # if no Table were written before, update zarr store
   zarr.group <- .make_zarr_group(x, name, 
                                  file.path(path, "tables"), 
                                  replace,
-                                 version = zarr_version(version))
+                                 version = zarr_version(format))
   
   # write meta:
   Rarr::write_zarr_attributes(zarr.group, new.zattrs = meta(x))
   
+  # version
+  version(x) <- table(format)
+  
   # write data
-  if(zarr_version(version) == 3)
+  if(zarr_version(format) == 3)
     stop("Write support for anndata v3 zarr is not supported yet!")
   anndataR::write_zarr(x, path = zarr.group, mode = "a")
 }
