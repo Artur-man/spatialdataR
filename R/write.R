@@ -218,8 +218,6 @@ writeLabel <- function(x, name, path, replace = TRUE, version = "0.3") {
                              order = "C",
                              dimension_separator = "/",
                              zarr_version = zarr_version(version))
-      # if (version == "v3")
-      #   .normalize_v3_array_metadata(file.path(zarr.group, .))
     }
   )
 }

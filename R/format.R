@@ -3,7 +3,7 @@
 #' 
 #' @param version SpatialData version: 0.1 or 0.2.
 #' 
-#' @details 
+#' @details
 #' 
 #' @return \code{sdFormat}
 #' 

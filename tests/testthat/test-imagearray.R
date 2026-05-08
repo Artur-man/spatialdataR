@@ -60,36 +60,6 @@ test_that("create, ImageArray", {
   expect_identical(image(sd, 1), imgarray)
 })
 
-td <- tempdir()
-zarr.store <- "test.zarr"
-zarr.path <- file.path(td, zarr.store)
-unlink(zarr.path, recursive = TRUE)
-
-test_that("write, ImageArray", {
-  
-  # create image
-  set.seed(1)
-  img <- array(sample(1:255, size = 100*100*3, replace = TRUE), 
-               dim = c(3,100,100))
-  
-  # make image array
-  imgarray <- ImageArray(img)
-  sd <- SpatialData(images = list(test_image = imgarray))
-  
-  # write to location
-  zarr.path <- tempfile(fileext = ".zarr")
-  writeSpatialData(sd, path = zarr.path)
-  expect_true(dir.exists(zarr.path))
-  
-  # read back and compare
-  sd2 <- readSpatialData(zarr.path)
-  imgarray2 <- image(sd2)
-  expect_identical(realize(data(imgarray)), 
-                   realize(data(imgarray2)))
-  expect_equal(meta(imgarray),
-               meta(imgarray2))
-})
-
 test_that("create multiscale, ImageArray", {
   
   # create image
@@ -118,60 +88,97 @@ test_that("create multiscale, ImageArray", {
   expect_identical(image(sd, 1), imgarray)
 })
 
-td <- tempdir()
-zarr.store <- "test.zarr"
-zarr.path <- file.path(td, zarr.store)
-unlink(zarr.path, recursive = TRUE)
+z <- list(0.1, 0.2)
 
-test_that("write multiscale, ImageArray", {
+for (v in names(z)) {
   
-  # create image
-  set.seed(1)
-  img <- array(sample(1:255, size = 100*100*3, replace = TRUE), 
-               dim = c(3,100,100))
+  td <- tempdir()
+  zarr.store <- "test.zarr"
+  zarr.path <- file.path(td, zarr.store)
+  unlink(zarr.path, recursive = TRUE)
   
-  # make image array
-  imgarray <- ImageArray(img, scale_factors = c(2,2,2))
-  sd <- SpatialData(images = list(test_image = imgarray))
+  test_that("write, ImageArray", {
+    
+    # create image
+    set.seed(1)
+    img <- array(sample(1:255, size = 100*100*3, replace = TRUE), 
+                 dim = c(3,100,100))
+    
+    # make image array
+    imgarray <- ImageArray(img, version = image(sdFormat(v)))
+    sd <- SpatialData(images = list(test_image = imgarray))
+    
+    # write to location
+    zarr.path <- tempfile(fileext = ".zarr")
+    writeSpatialData(sd, path = zarr.path, version = v)
+    expect_true(dir.exists(zarr.path))
+    
+    # read back and compare
+    sd2 <- readSpatialData(zarr.path)
+    imgarray2 <- image(sd2)
+    expect_identical(realize(data(imgarray)), 
+                     realize(data(imgarray2)))
+    expect_equal(meta(imgarray),
+                 meta(imgarray2))
+  })
   
-  # write to location
-  zarr.path <- tempfile(fileext = ".zarr")
-  writeSpatialData(sd, path = zarr.path)
-  expect_true(dir.exists(zarr.path))
+  td <- tempdir()
+  zarr.store <- "test.zarr"
+  zarr.path <- file.path(td, zarr.store)
+  unlink(zarr.path, recursive = TRUE)
   
-  # read back and compare
-  sd2 <- readSpatialData(zarr.path)
-  imgarray2 <- image(sd2)
-  expect_identical(realize(data(imgarray, 1)), 
-                   realize(data(imgarray2, 1)))
-  expect_identical(realize(data(imgarray, 2)), 
-                   realize(data(imgarray2, 2)))
-  expect_identical(realize(data(imgarray, 3)), 
-                   realize(data(imgarray2, 3)))
-  expect_equal(meta(imgarray),meta(imgarray2))
-})
-
-# test_that("write v3 uses Python-readable codec ordering", {
-#   td <- tempdir()
-#   zarr.path <- file.path(td, "test_v3.zarr")
-#   unlink(zarr.path, recursive = TRUE)
-# 
-#   set.seed(1)
-#   img <- array(sample(1:255, size = 20 * 20 * 3, replace = TRUE),
-#                dim = c(3, 20, 20))
-#   imgarray <- ImageArray(img, axes = c("c", "y", "x"))
-#   sd <- SpatialData(images = list(test_image = imgarray))
-# 
-#   writeSpatialData(sd, "test_v3.zarr", path = td, version = "v3")
-# 
-#   metadata <- jsonlite::read_json(
-#     file.path(zarr.path, "images", "test_image", "0", "zarr.json"),
-#     simplifyVector = FALSE
-#   )
-#   codec_names <- vapply(metadata$codecs, `[[`, character(1), "name")
-# 
-#   expect_identical(codec_names, c("transpose", "bytes", "zstd"))
-#   expect_equal(unname(unlist(metadata$dimension_names)), c("c", "y", "x"))
-#   expect_equal(metadata$attributes, list())
-#   expect_equal(metadata$storage_transformers, list())
-# })
+  test_that("write multiscale, ImageArray", {
+    
+    # create image
+    set.seed(1)
+    img <- array(sample(1:255, size = 100*100*3, replace = TRUE), 
+                 dim = c(3,100,100))
+    
+    # make image array
+    imgarray <- ImageArray(img, scale_factors = c(2,2,2), 
+                           version = image(sdFormat(v)))
+    sd <- SpatialData(images = list(test_image = imgarray))
+    
+    # write to location
+    zarr.path <- tempfile(fileext = ".zarr")
+    writeSpatialData(sd, path = zarr.path, version = v)
+    expect_true(dir.exists(zarr.path))
+    
+    # read back and compare
+    sd2 <- readSpatialData(zarr.path)
+    imgarray2 <- image(sd2)
+    expect_identical(realize(data(imgarray, 1)), 
+                     realize(data(imgarray2, 1)))
+    expect_identical(realize(data(imgarray, 2)), 
+                     realize(data(imgarray2, 2)))
+    expect_identical(realize(data(imgarray, 3)), 
+                     realize(data(imgarray2, 3)))
+    expect_equal(meta(imgarray),meta(imgarray2))
+  })
+  
+  # test_that("write v3 uses Python-readable codec ordering", {
+  #   td <- tempdir()
+  #   zarr.path <- file.path(td, "test_v3.zarr")
+  #   unlink(zarr.path, recursive = TRUE)
+  # 
+  #   set.seed(1)
+  #   img <- array(sample(1:255, size = 20 * 20 * 3, replace = TRUE),
+  #                dim = c(3, 20, 20))
+  #   imgarray <- ImageArray(img, axes = c("c", "y", "x"))
+  #   sd <- SpatialData(images = list(test_image = imgarray))
+  # 
+  #   writeSpatialData(sd, "test_v3.zarr", path = td, version = "v3")
+  # 
+  #   metadata <- jsonlite::read_json(
+  #     file.path(zarr.path, "images", "test_image", "0", "zarr.json"),
+  #     simplifyVector = FALSE
+  #   )
+  #   codec_names <- vapply(metadata$codecs, `[[`, character(1), "name")
+  # 
+  #   expect_identical(codec_names, c("transpose", "bytes", "zstd"))
+  #   expect_equal(unname(unlist(metadata$dimension_names)), c("c", "y", "x"))
+  #   expect_equal(metadata$attributes, list())
+  #   expect_equal(metadata$storage_transformers, list())
+  # })
+  
+}

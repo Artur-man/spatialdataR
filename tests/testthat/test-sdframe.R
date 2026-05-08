@@ -138,36 +138,6 @@ test_that("create, PointFrame", {
   expect_identical(point(sd, 1), pf)
 })
 
-td <- tempdir()
-zarr.store <- "test.zarr"
-zarr.path <- file.path(td, zarr.store)
-unlink(zarr.path, recursive = TRUE)
-
-test_that("write, PointFrame", {
-  
-  # make sd data
-  pf <- PointFrame(df)
-  sd <- SpatialData(points = list(test_points = pf))
-  
-  # write to location
-  zarr.path <- tempfile(fileext = ".zarr")
-  writeSpatialData(sd, path = zarr.path)
-  expect_true(dir.exists(zarr.path))
-  
-  # read back and compare
-  sd2 <- readSpatialData(zarr.path)
-  pf2 <- point(sd2)
-  # attr(data(pf), "source_table") is not identical, obviously
-  expect_equal(
-    ddbs_collect(data(pf)),
-    ddbs_collect(data(pf2))
-  )
-  expect_identical(st_coordinates(st_as_sf(data(pf))), 
-                   st_coordinates(st_as_sf(data(pf2))))
-  expect_identical(meta(pf),meta(pf2))
-  expect_identical(names(pf), names(pf2))
-})
-
 library(arrow)
 library(geoarrow)
 
@@ -201,7 +171,7 @@ test_that("create polygon, ShapeFrame", {
   expect_identical(names(pf), colnames(df))
   expect_identical(ddbs_collect(data(pf[1:2,1])),
                    ddbs_collect(df)[1:2,1])
-               
+  
   # coordinate systems
   expect_identical(CTname(pf), "global")
   expect_identical(CTtype(pf), "identity")
@@ -214,34 +184,6 @@ test_that("create polygon, ShapeFrame", {
   expect_identical(data(shape(sd)), data(pf))
   expect_identical(shape(sd), pf)
   expect_identical(shape(sd, 1), pf)
-})
-
-td <- tempdir()
-zarr.store <- "test.zarr"
-zarr.path <- file.path(td, zarr.store)
-unlink(zarr.path, recursive = TRUE)
-
-test_that("write polygon, ShapeFrame", {
-  
-  # make sd data
-  pf <- ShapeFrame(df)
-  sd <- SpatialData(shapes = list(test_shapes = pf))
-  
-  # write to location
-  zarr.path <- tempfile(fileext = ".zarr")
-  writeSpatialData(sd, path = zarr.path)
-  expect_true(dir.exists(zarr.path))
-  
-  # read back and compare
-  sd2 <- readSpatialData(zarr.path)
-  pf2 <- shape(sd2)
-  # TODO: they are not identical, why ? 
-  expect_equal(data(pf) |> collect(), 
-               data(pf2) |> collect())
-  expect_identical(meta(pf),meta(pf2))
-  expect_identical(names(pf), names(pf2))
-  expect_identical(data(pf[1:2, 1]) |> collect(), 
-                   data(pf2[1:2,1]) |> collect())
 })
 
 # make shape data
@@ -290,30 +232,94 @@ test_that("create circle, ShapeFrame", {
   expect_identical(shape(sd, 1), pf)
 })
 
-td <- tempdir()
-zarr.store <- "test.zarr"
-zarr.path <- file.path(td, zarr.store)
-unlink(zarr.path, recursive = TRUE)
+z <- list(0.1, 0.2)
 
-test_that("write circle, ShapeFrame", {
+for (v in names(z)) {
+ 
+  td <- tempdir()
+  zarr.store <- "test.zarr"
+  zarr.path <- file.path(td, zarr.store)
+  unlink(zarr.path, recursive = TRUE)
   
-  # make sd data
-  pf <- ShapeFrame(df)
-  sd <- SpatialData(shapes = list(test_shapes = pf))
+  test_that("write, PointFrame", {
+    
+    # make sd data
+    pf <- PointFrame(df, version = point(sdFormat(v)))
+    sd <- SpatialData(points = list(test_points = pf))
+    
+    # write to location
+    zarr.path <- tempfile(fileext = ".zarr")
+    writeSpatialData(sd, path = zarr.path, version = sdFormat(v))
+    expect_true(dir.exists(zarr.path))
+    
+    # read back and compare
+    sd2 <- readSpatialData(zarr.path)
+    pf2 <- point(sd2)
+    # attr(data(pf), "source_table") is not identical, obviously
+    expect_equal(
+      ddbs_collect(data(pf)),
+      ddbs_collect(data(pf2))
+    )
+    expect_identical(st_coordinates(st_as_sf(data(pf))), 
+                     st_coordinates(st_as_sf(data(pf2))))
+    expect_identical(meta(pf),meta(pf2))
+    expect_identical(names(pf), names(pf2))
+  })
   
-  # write to location
-  zarr.path <- tempfile(fileext = ".zarr")
-  writeSpatialData(sd, path = zarr.path)
-  expect_true(dir.exists(zarr.path))
+  td <- tempdir()
+  zarr.store <- "test.zarr"
+  zarr.path <- file.path(td, zarr.store)
+  unlink(zarr.path, recursive = TRUE)
   
-  # read back and compare
-  sd2 <- readSpatialData(zarr.path)
-  pf2 <- shape(sd2)
-  # TODO: they are not identical, why ? 
-  expect_equal(data(pf) |> collect(), 
-               data(pf2) |> collect())
-  expect_identical(meta(pf),meta(pf2))
-  expect_identical(names(pf), names(pf2))
-  expect_identical(data(pf[1:2, 1]) |> collect(), 
-                   data(pf2[1:2,1]) |> collect())
-})
+  test_that("write polygon, ShapeFrame", {
+    
+    # make sd data
+    pf <- ShapeFrame(df, version = shape(sdFormat(v)))
+    sd <- SpatialData(shapes = list(test_shapes = pf))
+    
+    # write to location
+    zarr.path <- tempfile(fileext = ".zarr")
+    writeSpatialData(sd, path = zarr.path, version = sdFormat(v))
+    expect_true(dir.exists(zarr.path))
+    
+    # read back and compare
+    sd2 <- readSpatialData(zarr.path)
+    pf2 <- shape(sd2)
+    # TODO: they are not identical, why ? 
+    expect_equal(data(pf) |> collect(), 
+                 data(pf2) |> collect())
+    expect_identical(meta(pf),meta(pf2))
+    expect_identical(names(pf), names(pf2))
+    expect_identical(data(pf[1:2, 1]) |> collect(), 
+                     data(pf2[1:2,1]) |> collect())
+  })
+  
+  td <- tempdir()
+  zarr.store <- "test.zarr"
+  zarr.path <- file.path(td, zarr.store)
+  unlink(zarr.path, recursive = TRUE)
+  
+  test_that("write circle, ShapeFrame", {
+    
+    # make sd data
+    pf <- ShapeFrame(df, version = shape(sdFormat(v)))
+    sd <- SpatialData(shapes = list(test_shapes = pf))
+    
+    # write to location
+    zarr.path <- tempfile(fileext = ".zarr")
+    writeSpatialData(sd, path = zarr.path, version = sdFormat(v))
+    expect_true(dir.exists(zarr.path))
+    
+    # read back and compare
+    sd2 <- readSpatialData(zarr.path)
+    pf2 <- shape(sd2)
+    # TODO: they are not identical, why ? 
+    expect_equal(data(pf) |> collect(), 
+                 data(pf2) |> collect())
+    expect_identical(meta(pf),meta(pf2))
+    expect_identical(names(pf), names(pf2))
+    expect_identical(data(pf[1:2, 1]) |> collect(), 
+                     data(pf2[1:2,1]) |> collect())
+  })
+  
+}

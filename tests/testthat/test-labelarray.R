@@ -58,35 +58,6 @@ test_that("create,LabelArray", {
   expect_identical(label(sd, 1), lblarray)
 })
 
-td <- tempdir()
-zarr.store <- "test.zarr"
-zarr.path <- file.path(td, zarr.store)
-unlink(zarr.path, recursive = TRUE)
-
-test_that("write,LabelArray", {
-  
-  # create label
-  set.seed(1)
-  lbl <- array(sample(0:8L, size = 100*100, replace = TRUE), 
-               dim = c(100,100))
-  
-  # make label array
-  lblarray <- LabelArray(lbl)
-  sd <- SpatialData(labels = list(test_label = lblarray))
-  
-  # write to location
-  zarr.path <- tempfile(fileext = ".zarr")
-  writeSpatialData(sd, path = zarr.path)
-  expect_true(dir.exists(zarr.path))
-  
-  # read back and compare
-  sd2 <- readSpatialData(zarr.path)
-  lblarray2 <- label(sd2)
-  expect_identical(realize(data(lblarray)), 
-                   realize(data(lblarray2)))
-  expect_equal(meta(lblarray),meta(lblarray2))
-})
-
 test_that("create multiscale,LabelArray", {
   
   # create label
@@ -115,35 +86,71 @@ test_that("create multiscale,LabelArray", {
   expect_identical(label(sd, 1), lblarray)
 })
 
-td <- tempdir()
-zarr.store <- "test.zarr"
-zarr.path <- file.path(td, zarr.store)
-unlink(zarr.path, recursive = TRUE)
+z <- list(0.1, 0.2)
 
-test_that("write multiscale,LabelArray", {
+for (v in names(z)) {
   
-  # create label
-  set.seed(1)
-  lbl <- array(sample(0:8L, size = 100*100, replace = TRUE), 
-               dim = c(100,100))
+  td <- tempdir()
+  zarr.store <- "test.zarr"
+  zarr.path <- file.path(td, zarr.store)
+  unlink(zarr.path, recursive = TRUE)
   
-  # make label array
-  lblarray <- LabelArray(lbl, scale_factors = c(2,2,2))
-  sd <- SpatialData(labels = list(test_label = lblarray))
+  test_that("write,LabelArray", {
+    
+    # create label
+    set.seed(1)
+    lbl <- array(sample(0:8L, size = 100*100, replace = TRUE), 
+                 dim = c(100,100))
+    
+    # make label array
+    lblarray <- LabelArray(lbl, version = label(sdFormat(v)))
+    sd <- SpatialData(labels = list(test_label = lblarray))
+    
+    # write to location
+    zarr.path <- tempfile(fileext = ".zarr")
+    writeSpatialData(sd, path = zarr.path, version = v)
+    expect_true(dir.exists(zarr.path))
+    
+    # read back and compare
+    sd2 <- readSpatialData(zarr.path)
+    lblarray2 <- label(sd2)
+    expect_identical(realize(data(lblarray)), 
+                     realize(data(lblarray2)))
+    expect_equal(meta(lblarray),meta(lblarray2))
+  })
   
-  # write to location
-  zarr.path <- tempfile(fileext = ".zarr")
-  writeSpatialData(sd, path = zarr.path)
-  expect_true(dir.exists(zarr.path))
+  td <- tempdir()
+  zarr.store <- "test.zarr"
+  zarr.path <- file.path(td, zarr.store)
+  unlink(zarr.path, recursive = TRUE)
   
-  # read back and compare
-  sd2 <- readSpatialData(zarr.path)
-  lblarray2 <- label(sd2)
-  expect_identical(realize(data(lblarray)), 
-                   realize(data(lblarray2)))
-  expect_identical(realize(data(lblarray, 2)), 
-                   realize(data(lblarray2, 2)))
-  expect_identical(realize(data(lblarray, 3)), 
-                   realize(data(lblarray2, 3)))
-  expect_equal(meta(lblarray),meta(lblarray2))
-})
+  test_that("write multiscale,LabelArray", {
+    
+    # create label
+    set.seed(1)
+    lbl <- array(sample(0:8L, size = 100*100, replace = TRUE), 
+                 dim = c(100,100))
+    
+    # make label array
+    lblarray <- LabelArray(lbl, scale_factors = c(2,2,2), 
+                           version = label(sdFormat(v)))
+    sd <- SpatialData(labels = list(test_label = lblarray))
+    
+    # write to location
+    zarr.path <- tempfile(fileext = ".zarr")
+    writeSpatialData(sd, path = zarr.path, version = v)
+    expect_true(dir.exists(zarr.path))
+    
+    # read back and compare
+    sd2 <- readSpatialData(zarr.path)
+    lblarray2 <- label(sd2)
+    expect_identical(realize(data(lblarray)), 
+                     realize(data(lblarray2)))
+    expect_identical(realize(data(lblarray, 2)), 
+                     realize(data(lblarray2, 2)))
+    expect_identical(realize(data(lblarray, 3)), 
+                     realize(data(lblarray2, 3)))
+    expect_equal(meta(lblarray),meta(lblarray2))
+  })
+
+}
