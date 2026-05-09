@@ -1,10 +1,10 @@
-#' @name ImageArray
-#' @title The `ImageArray` class
+#' @name SpatialDataImage
+#' @title The `SpatialDataImage` class
 #' @aliases channels
 #' 
-#' @param x \code{ImageArray}
-#' @param data list of \code{\link[ZarrArray]{ZarrArray}}s
-#' @param meta \code{\link{Zattrs}}
+#' @param x \code{SpatialDataImage}
+#' @param data list of \code{\link{SpatialDataAttrs}}s
+#' @param meta \code{\link{SpatialDataAttrs}}
 #' @param metadata optional list of arbitrary 
 #'   content describing the overall object.
 #' @param multiscale if TRUE (and \code{data} is not a list), 
@@ -15,7 +15,7 @@
 #' @param drop ignored.
 #' @param ... option arguments passed to and from other methods.
 #'
-#' @return \code{ImageArray}
+#' @return \code{SpatialDataImage}
 #'
 #' @examples
 #' zs <- file.path("extdata", "blobs.zarr")
@@ -45,7 +45,7 @@
 #' @importFrom methods new
 #' @importFrom DelayedArray DelayedArray
 #' @export
-ImageArray <- function(data=list(), meta = Zattrs(), 
+SpatialDataImage <- function(data=list(), meta=SpatialDataAttrs(),
                        version = image(sdFormat(0.1)),
                        metadata=list(),
                        scale_factors = NULL, ...) {
@@ -61,7 +61,7 @@ ImageArray <- function(data=list(), meta = Zattrs(),
       meta <- Zattrs(scale_factors = scale_factors) 
     }
     # construct S4 object
-    x <- .ImageArray(data=data, meta=meta, ...)
+    x <- .SpatialDataImage(data=data, meta=meta, ...)
     metadata(x) <- metadata
     
     # update version if provided
@@ -71,49 +71,27 @@ ImageArray <- function(data=list(), meta = Zattrs(),
 }
 
 #' @export
-#' @rdname ImageArray
-setMethod("channels", "ImageArray", \(x, ...) channels(meta(x)))
+#' @rdname SpatialDataImage
+setMethod("channels", "SpatialDataImage", \(x, ...) channels(meta(x)))
 
 #' @export
-#' @rdname ImageArray
+#' @rdname SpatialDataImage
 setMethod("channels", "ANY", \(x, ...) stop("only 'images' have channels"))
 
 #' @importFrom S4Vectors isSequence
-.get_multiscales_dataset_paths <- function(za) {
-    # validate 'multiscales'
-    ms <- .check_ms(za)
-    # get & validate 'path's
-    ds <- ms[[1]]$datasets
-    ps <- vapply(ds, \(.) .$path, character(1))
+.get_multiscales_paths <- function(x) {
+    ps <- list.files(x)
     ps <- suppressWarnings(as.numeric(sort(ps, decreasing=FALSE)))
+    ps <- ps[!is.na(ps)]
     if (length(ps)) {
         qs <- seq(min(ps), max(ps))
         if (!isTRUE(all.equal(ps, qs)))
-            stop("ImageArray paths are ill-defined, should",
+            stop("SpatialDataImage paths are ill-defined, should",
                 " be an integer sequence, e.g., 0,1,...,n")
+    } else {
+      stop("SpatialDataImage path is empty")
     }
     return(ps)
-}
-
-.check_ms <- \(za) {
-    # validate 'multiscales'
-    ms <- multiscales(za)
-    if (!is.null(ms)) {
-        # validate 'datasets' 
-        ds <- ms[[1]]$datasets
-        if (!is.null(ds)) {
-            # validate 'paths'
-            ok <- vapply(ds, \(.) !is.null(.$path), logical(1))
-            if (!all(ok))
-                stop("'ImageArray' paths are ill-defined,",
-                    " no 'path' attribute under 'multiscale-datasets'")
-        } else stop(
-            "'ImageArray' paths are ill-defined,",
-            " no 'datasets' attribute under 'multiscale'")
-    } else stop( 
-        "'ImageArray' paths are ill-defined,",
-        " no 'multiscales' attribute under '.zattrs'")
-    return(ms)
 }
 
 .check_jk <- \(x, .) {
@@ -129,9 +107,9 @@ setMethod("channels", "ANY", \(x, ...) stop("only 'images' have channels"))
 }
 
 #' @exportMethod [
-#' @rdname ImageArray
+#' @rdname SpatialDataImage
 #' @importFrom utils head tail
-setMethod("[", "ImageArray", \(x, i, j, k, ..., drop=FALSE) {
+setMethod("[", "SpatialDataImage", \(x, i, j, k, ..., drop=FALSE) {
     if (missing(i)) i <- TRUE
     if (missing(j)) j <- TRUE else if (isFALSE(j)) j <- 0 else .check_jk(j, "j")
     if (missing(k)) k <- TRUE else if (isFALSE(k)) k <- 0 else .check_jk(k, "k")
