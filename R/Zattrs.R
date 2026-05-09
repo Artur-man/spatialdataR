@@ -104,7 +104,12 @@ Zattrs <- function(x, type=c("array", "frame"), label=FALSE, trans=NULL,
 
 # Internal helper to generate coordinate transformations
 .default_ct <- \(axes, name="global", type="identity", data=NULL) {
-    ct <- list(input=axes, output=list(name=name), type=type)
+    ct <- list(
+      input=list(axes = axes,
+                 name = if(length(axes) == 3) "cyx" else "yx"), 
+      output=list(axes = axes,
+                  name = name), 
+      type = type)
     if (!is.null(data)) ct[[type]] <- data
     list(ct)
 }

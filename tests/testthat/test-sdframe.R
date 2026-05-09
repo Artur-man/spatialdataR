@@ -186,7 +186,7 @@ test_that("create circle, ShapeFrame", {
 
 z <- list(0.1, 0.2)
 
-for (v in names(z)) {
+for (v in z) {
  
   td <- tempdir()
   zarr.store <- "test.zarr"
@@ -202,7 +202,7 @@ for (v in names(z)) {
     
     # write to location
     zarr.path <- tempfile(fileext = ".zarr")
-    writeSpatialData(sd, path = zarr.path, version = sdFormat(v))
+    writeSpatialData(sd, path = zarr.path, version = v)
     expect_true(dir.exists(zarr.path))
     
     # read back and compare
@@ -233,7 +233,7 @@ for (v in names(z)) {
     
     # write to location
     zarr.path <- tempfile(fileext = ".zarr")
-    writeSpatialData(sd, path = zarr.path, version = sdFormat(v))
+    writeSpatialData(sd, path = zarr.path, version = v)
     expect_true(dir.exists(zarr.path))
     
     # read back and compare
@@ -262,7 +262,7 @@ for (v in names(z)) {
     
     # write to location
     zarr.path <- tempfile(fileext = ".zarr")
-    writeSpatialData(sd, path = zarr.path, version = sdFormat(v))
+    writeSpatialData(sd, path = zarr.path, version = v)
     expect_true(dir.exists(zarr.path))
     
     # read back and compare
