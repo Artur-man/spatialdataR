@@ -24,8 +24,8 @@ test_that("data_type()", {
 test_that("SpatialDataImage()", {
   rgb <- \(n) sample(seq_len(255), n, replace=TRUE)
   mat <- array(rgb(3*20*20), dim=c(3,20,20))
+  SpatialDataImage(mat)
   # invalid
-  expect_error(SpatialDataImage(mat))
   expect_error(SpatialDataImage(mat, 1))
   expect_error(SpatialDataImage(mat, list()))
   # single scale
@@ -179,8 +179,8 @@ for (v in names(z)) {
 test_that("SpatialDataLabel()", {
   val <- sample(seq_len(12), 20*20, replace=TRUE)
   mat <- array(val, dim=c(20, 20))
+  SpatialDataLabel(mat)
   # invalid
-  expect_error(SpatialDataLabel(mat))
   expect_error(SpatialDataLabel(mat, 1))
   expect_error(SpatialDataLabel(mat, list()))
   # single scale
