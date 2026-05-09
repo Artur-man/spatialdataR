@@ -181,7 +181,7 @@ test_that("write, Table (SCE) for shapes", {
   # make sd data
   i <- "test_shapes"
   df <- example_polygons()
-  pf <- ShapeFrame(df, version = shape(sdFormat(v)))
+  pf <- SpatialDataShape(df, version = shape(sdFormat(v)))
   sd <- SpatialData(shapes = setNames(list(pf), i))
   
   # create table (SCE)

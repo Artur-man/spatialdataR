@@ -58,7 +58,8 @@ SpatialDataImage <- function(data=list(), meta=SpatialDataAttrs(),
                                                  character(1)), 
                                    scale_factors = scale_factors, 
                                    method = "image")
-      meta <- Zattrs(scale_factors = scale_factors) 
+      # TODO: this supposed to update the scale_factors not write a new meta
+      meta <- SpatialDataAttrs(scale_factors = scale_factors) 
     }
     # construct S4 object
     x <- .SpatialDataImage(data=data, meta=meta, ...)

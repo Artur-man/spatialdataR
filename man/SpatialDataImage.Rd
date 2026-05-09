@@ -8,19 +8,12 @@
 \alias{[,SpatialDataImage,ANY,ANY,ANY-method}
 \title{The `SpatialDataImage` class}
 \usage{
-<<<<<<< HEAD:man/ImageArray.Rd
-ImageArray(
-  data = list(),
-  meta = Zattrs(),
-  version = image(sdFormat(0.1)),
-  metadata = list(),
-  scale_factors = NULL,
-=======
 SpatialDataImage(
   data = list(),
   meta = SpatialDataAttrs(),
+  version = image(sdFormat(0.1)),
   metadata = list(),
->>>>>>> main:man/SpatialDataImage.Rd
+  scale_factors = NULL,
   ...
 )
 

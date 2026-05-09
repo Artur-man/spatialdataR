@@ -1,7 +1,7 @@
 #' @name SpatialDataAttrs
 #' @title The `SpatialDataAttrs` class
 #' 
-#' @param x element or list extracted from a OME-NGFF compliant .zattrs file.
+#' @param x element or list extracted from a OME-NGFF compliant .zattrs/zarr.json file.
 #' @param name character string for extraction (see ?base::`$`).
 #' @param type character string; either "array" (image/label) or "frame" (point/shape).
 #' @param axes list of axes; if NULL, defaults to cyx (array) or xy (frame).
@@ -147,11 +147,11 @@ SpatialDataAttrs <- \(x, type=c("array", "frame"),
 
 #' @export
 #' @importFrom utils .DollarNames
-.DollarNames.Zattrs <- \(x, pattern="") names(x)
+.DollarNames.SpatialDataAttrs <- \(x, pattern="") names(x)
 
-#' @rdname Zattrs
+#' @rdname SpatialDataAttrs
 #' @exportMethod $
-setMethod("$", "Zattrs", \(x, name) x[[name]])
+setMethod("$", "SpatialDataAttrs", \(x, name) x[[name]])
 
 # internal use only!
 #' @noRd 
@@ -344,7 +344,7 @@ setMethod("version", c("SingleCellExperiment"), \(x) {
   meta(x)$version
 })
 
-setMethod("version", "Zattrs", \(x) .zv(x))
+setMethod("version", "SpatialDataAttrs", \(x) .zv(x))
 
 setMethod("version", "list", \(x) .zv(x))
 
@@ -356,14 +356,14 @@ setMethod("version", "list", \(x) .zv(x))
     return(v)
 }
 
-setReplaceMethod("version", c("sdFrame"), \(x, value) {
+setReplaceMethod("version", c("SpatialDataFrame"), \(x, value) {
   if(!value %in% c("0.1", "0.2", "0.3"))
     stop("Unknown version for shape/point! Must be 0.2 or 0.3.")
   meta(x)$spatialdata_attrs$version <- value
   x
 })
 
-setReplaceMethod("version", c("sdArray"), \(x, value) {
+setReplaceMethod("version", c("SpatialDataArray"), \(x, value) {
   mt <- meta(x)
   if(value == "0.3"){
     if(is.null(mt$ome)){

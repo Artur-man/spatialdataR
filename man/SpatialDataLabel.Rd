@@ -5,19 +5,12 @@
 \alias{[,SpatialDataLabel,ANY,ANY,ANY-method}
 \title{The \code{SpatialDataLabel} class}
 \usage{
-<<<<<<< HEAD:man/LabelArray.Rd
-LabelArray(
+SpatialDataLabel(
   data = list(),
-  meta = Zattrs(label = TRUE),
+  meta = SpatialDataAttrs(label = TRUE),
   version = image(sdFormat(0.1)),
   metadata = list(),
   scale_factors = NULL,
-=======
-SpatialDataLabel(
-  data = list(),
-  meta = SpatialDataAttrs(),
-  metadata = list(),
->>>>>>> main:man/SpatialDataLabel.Rd
   ...
 )
 

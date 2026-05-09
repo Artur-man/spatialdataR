@@ -39,8 +39,8 @@
 #' @importFrom S4Vectors metadata<-
 #' @importFrom methods new
 #' @export
-SpatialDataLabel <- function(data=list(), meta=SpatialDataAttrs(),
-                             meta=Zattrs(label = TRUE),
+SpatialDataLabel <- function(data=list(), 
+                             meta=SpatialDataAttrs(label = TRUE),
                              version = image(sdFormat(0.1)),
                              metadata=list(),
                              scale_factors = NULL, ...) {
@@ -53,7 +53,7 @@ SpatialDataLabel <- function(data=list(), meta=SpatialDataAttrs(),
                                                  character(1)), 
                                    scale_factors = scale_factors, 
                                    method = "label")
-      meta <- Zattrs(scale_factors = scale_factors, label = TRUE) 
+      meta <- SpatialDataAttrs(scale_factors = scale_factors, label = TRUE) 
     }
     x <- .SpatialDataLabel(data=data, meta=meta, ...)
     metadata(x) <- metadata

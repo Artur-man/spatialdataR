@@ -51,6 +51,7 @@
 SpatialDataPoint(
   data = NULL,
   meta = SpatialDataAttrs(type = "frame"),
+  version = point(sdFormat(0.1)),
   metadata = list(),
   ik = NULL,
   fk = NULL,
@@ -60,6 +61,7 @@ SpatialDataPoint(
 SpatialDataShape(
   data = NULL,
   meta = SpatialDataAttrs(type = "frame"),
+  version = shape(sdFormat(0.1)),
   metadata = list(),
   ...
 )

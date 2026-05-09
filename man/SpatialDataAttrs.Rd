@@ -31,6 +31,7 @@ SpatialDataAttrs(
   trans = NULL,
   ver = "0.4",
   n = 3,
+  scale_factors = NULL,
   ...
 )
 
@@ -75,7 +76,7 @@ SpatialDataAttrs(
 \S4method{instances}{SingleCellExperiment}(x) <- value
 }
 \arguments{
-\item{x}{element or list extracted from a OME-NGFF compliant .zattrs file.}
+\item{x}{element or list extracted from a OME-NGFF compliant .zattrs/zarr.json file.}
 
 \item{type}{character string; either "array" (image/label) or "frame" (point/shape).}
 
