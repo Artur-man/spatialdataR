@@ -164,8 +164,6 @@ setMethod("data_type", "DelayedArray", \(x) {
   return(df$data_type)
 })
 
-
-
 #' @importFrom S4Vectors isSequence
 .get_multiscales_paths <- function(x) {
   ps <- list.files(x)
@@ -239,8 +237,8 @@ setMethod("data_type", "DelayedArray", \(x) {
 # internal use only!
 #' @noRd 
 .ch <- \(x) {
-  if (.zv(x) == "0.3") x <- x$ome
-  unlist(x$omero$channels)
+    if (.zv(x) == "0.3") x <- x$ome
+    unlist(x$omero$channels)
 }
 
 #' @export
@@ -273,42 +271,42 @@ setMethod("channels", "SpatialDataElement", \(x, ...) stop("only 'images' have c
 #' @rdname SpatialDataArray
 #' @importFrom utils head tail
 setMethod("[", "SpatialDataImage", \(x, i, j, k, ..., drop=FALSE) {
-  if (missing(i)) i <- TRUE
-  if (missing(j)) j <- TRUE else if (isFALSE(j)) j <- 0 else .check_jk(j, "j")
-  if (missing(k)) k <- TRUE else if (isFALSE(k)) k <- 0 else .check_jk(k, "k")
-  ijk <- list(i, j, k)
-  n <- length(data(x, NULL))
-  d <- dim(data(x))
-  data(x) <- lapply(seq_len(n), \(.) {
-    j <- if (isTRUE(j)) seq_len(d[2]) else j
-    k <- if (isTRUE(k)) seq_len(d[3]) else k
-    jk <- lapply(list(j, k), \(jk) {
-      fac <- 2^(.-1)
-      seq(floor(head(jk, 1)/fac), 
-          ceiling(tail(jk, 1)/fac))
+    if (missing(i)) i <- TRUE
+    if (missing(j)) j <- TRUE else if (isFALSE(j)) j <- 0 else .check_jk(j, "j")
+    if (missing(k)) k <- TRUE else if (isFALSE(k)) k <- 0 else .check_jk(k, "k")
+    ijk <- list(i, j, k)
+    n <- length(data(x, NULL))
+    d <- dim(data(x))
+    data(x) <- lapply(seq_len(n), \(.) {
+        j <- if (isTRUE(j)) seq_len(d[2]) else j
+        k <- if (isTRUE(k)) seq_len(d[3]) else k
+        jk <- lapply(list(j, k), \(jk) {
+            fac <- 2^(.-1)
+            seq(floor(head(jk, 1)/fac), 
+                ceiling(tail(jk, 1)/fac))
+        })
+        data(x, .)[i, jk[[1]], jk[[2]], drop=FALSE]
     })
-    data(x, .)[i, jk[[1]], jk[[2]], drop=FALSE]
-  })
-  x
+    x
 })
 
 #' @exportMethod [
 #' @rdname SpatialDataArray
 #' @importFrom utils head tail
 setMethod("[", "SpatialDataLabel", \(x, i, j, ..., drop=FALSE) {
-  if (missing(i)) i <- TRUE else if (isFALSE(i)) i <- 0 else .check_jk(i, "i")
-  if (missing(j)) j <- TRUE else if (isFALSE(j)) j <- 0 else .check_jk(j, "j")
-  n <- length(data(x, NULL))
-  d <- dim(data(x, 1))
-  data(x) <- lapply(seq_len(n), \(.) {
-    i <- if (isTRUE(i)) seq_len(d[1]) else i
-    j <- if (isTRUE(j)) seq_len(d[2]) else j
-    ij <- lapply(list(i, j), \(ij) {
-      fac <- 2^(.-1)
-      seq(floor(head(ij, 1)/fac), 
-          ceiling(tail(ij, 1)/fac))
+    if (missing(i)) i <- TRUE else if (isFALSE(i)) i <- 0 else .check_jk(i, "i")
+    if (missing(j)) j <- TRUE else if (isFALSE(j)) j <- 0 else .check_jk(j, "j")
+    n <- length(data(x, NULL))
+    d <- dim(data(x, 1))
+    data(x) <- lapply(seq_len(n), \(.) {
+        i <- if (isTRUE(i)) seq_len(d[1]) else i
+        j <- if (isTRUE(j)) seq_len(d[2]) else j
+        ij <- lapply(list(i, j), \(ij) {
+            fac <- 2^(.-1)
+            seq(floor(head(ij, 1)/fac), 
+                ceiling(tail(ij, 1)/fac))
+        })
+        data(x, .)[ij[[1]], ij[[2]], drop=FALSE]
     })
-    data(x, .)[ij[[1]], ij[[2]], drop=FALSE]
-  })
-  x
+    x
 })

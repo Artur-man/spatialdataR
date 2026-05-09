@@ -16,6 +16,7 @@
 #' @param rk,ik character string; region and instance key (the latter will be
 #'   ignored if an instance key is already specified within element \code{i}).
 #' @param y \code{SingleCellExperiment} containing annotations for \code{i}.
+#' @param ... option arguments passed to and from other methods.
 #'
 #' @returns
 #' \itemize{
@@ -158,7 +159,6 @@ setMethod("setTable", c("SpatialData", "ANY"), \(x, i, ..., name=NULL, rk="rk", 
 #' @export
 setMethod("setTable", c("SpatialData", "character"), \(x, i, y,
     name=NULL, rk="region", ik="instance_id", version = "0.1") {
-    
     # validity
     stopifnot(
         is(y, "SingleCellExperiment"),

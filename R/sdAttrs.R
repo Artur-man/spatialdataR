@@ -1,11 +1,23 @@
 #' @name SpatialDataAttrs
 #' @title The `SpatialDataAttrs` class
 #' 
-#' @param x element or list extracted from a OME-NGFF compliant .zattrs/zarr.json file.
+#' @aliases region region<- 
+#' @aliases regions regions<- 
+#' @aliases instances instances<- 
+#' @aliases region_key region_key<- 
+#' @aliases feature_key feature_key<- 
+#' @aliases instance_key instance_key<- 
+#' 
+#' @param x element or list extracted from a OME-NGFF compliant .zattrs file.
 #' @param name character string for extraction (see ?base::`$`).
 #' @param type character string; either "array" (image/label) or "frame" (point/shape).
-#' @param axes list of axes; if NULL, defaults to cyx (array) or xy (frame).
-#' @param transformations list of transformations; if NULL, defaults to global identity.
+#' @param label flag; when \code{type="frame"}, should attributes be for a label?
+#' @param trans list of coordinate transformations; defaults to identity only.
+#' @param value character string (for one \code{region} and \code{_key}s), 
+#'   or vector (for many \code{region}s, \code{instances} and \code{regions}).
+#' @param ver character string; specified the .zarr version to comply with.
+#' @param nch scalar integer; how many channels should there be?
+#'   (ignored unless \code{type="frame"} and \code{label=FALSE}). 
 #' @param ... additional attributes (e.g., version, feature_key).
 #' 
 #' @details 
@@ -42,12 +54,12 @@
 #' # constructor
 #' SpatialDataAttrs(type="frame")
 #' SpatialDataAttrs(type="array")
-#' SpatialDataAttrs(type="array", n=7)
+#' SpatialDataAttrs(type="array", nch=7)
 #' SpatialDataAttrs(type="array", label=TRUE)
 #' 
 #' @export
 SpatialDataAttrs <- \(x, type=c("array", "frame"), 
-    label=FALSE, trans=NULL, ver="0.4", n=3, scale_factors = NULL, ...) 
+    label=FALSE, trans=NULL, ver="0.4", nch=3, scale_factors = NULL, ...) 
 {
     if (!missing(x)) return(.SpatialDataAttrs(x))
     type <- match.arg(type)
@@ -62,7 +74,7 @@ SpatialDataAttrs <- \(x, type=c("array", "frame"),
       res <- list()
       if(!label)
         res <- c(res,
-                 list(omero=list(channels=lapply(letters[seq_len(n)], 
+                 list(omero=list(channels=lapply(letters[seq_len(nch)], 
                                                  \(.) list(label = .)))))
       res <- c(res,
                list(
@@ -159,17 +171,7 @@ setMethod("$", "SpatialDataAttrs", \(x, name) x[[name]])
 
 # internal use only!
 #' @noRd 
-.ch <- \(x) {
-  if (version(x) == "0.3") x <- x$ome
-  unlist(x$omero$channels)
-}
-
-# internal use only!
-#' @noRd 
 setMethod("multiscales", "list", .ms)
-
-#' @export
-setMethod("channels", "SpatialDataAttrs", \(x, ...) .ch(x))
 
 # features ----
 
@@ -209,11 +211,7 @@ setReplaceMethod("region_key", c("SingleCellExperiment", "NULL"), \(x, value) {
 
 #' @export
 #' @rdname SpatialDataAttrs
-setMethod("region", "SingleCellExperiment", \(x) {
-    rk <- region_key(x)
-    if (is.null(rk)) return(NULL)
-    meta(x)[[rk]]
-})
+setMethod("region", "SingleCellExperiment", \(x) meta(x)[["region"]])
 
 #' @export
 #' @rdname SpatialDataAttrs
