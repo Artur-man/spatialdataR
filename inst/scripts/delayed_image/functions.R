@@ -1,16 +1,16 @@
 ####
-# LazyAffineSeed ####
+# Classes ####
 ####
 
-## Lazy affine helpers + constructor
+## Delayed affine helpers + constructor
 ## Assumes these packages are available/loaded:
 ## library(DelayedArray)
 ## library(S4Arrays)
 ## library(EBImage)
 
 setClass(
-  "LazyAffineSeed",
-  contains = "Array",
+  "DelayedAffineSeed",
+  contains = "DelayedUnaryOp",
   slots = c(
     seed = "ANY",
     dim = "integer",
@@ -24,17 +24,36 @@ setClass(
   )
 )
 
-setMethod("dim", "LazyAffineSeed", function(x) {
+setClass(
+  "DelayedTranslateSeed",
+  contains = "DelayedUnaryOp",
+  slots = c(
+    seed = "ANY",
+    dim = "integer",
+    dimnames = "list",
+    shift = "numeric",
+    axes = "character"
+  )
+)
+
+setClassUnion("DelayedImageSeed", 
+              c("DelayedAffineSeed", "DelayedTranslateSeed"))
+
+setMethod("dim", "DelayedImageSeed", function(x) {
   x@dim
 })
 
-setMethod("dimnames", "LazyAffineSeed", function(x) {
+setMethod("dimnames", "DelayedImageSeed", function(x) {
   x@dimnames
 })
 
-setMethod("type", "LazyAffineSeed", function(x) {
+setMethod("type", "DelayedImageSeed", function(x) {
   DelayedArray::type(x@seed)
 })
+
+####
+# Utils ####
+####
 
 .as_homogeneous <- function(m) {
   if (!is.matrix(m) || !identical(dim(m), c(3L, 2L))) {
@@ -235,9 +254,38 @@ setMethod("type", "LazyAffineSeed", function(x) {
   .spatial_back(as.array(out), x@axes)
 }
 
+.get_extent <- function(bboxmin, bboxmax) {
+  list(x = c(bboxmin[1], bboxmax[1]),
+       y = c(bboxmin[2], bboxmax[2]))
+}
+
+.get_bbox <- function(extent){
+  list(min = vapply(extent, \(.) min(.), numeric(1), USE.NAMES = FALSE),
+       max = vapply(extent, \(.) max(.), numeric(1), USE.NAMES = FALSE))
+}
+
+.affine_extent <- function(ext,m){
+  px <- as.matrix(expand.grid(ext$x, ext$y))
+  transformed <- sweep(px %*% m[1:2,], 2L, m[3,], "+")
+  bbox.min <- apply(transformed, 2L, min)
+  bbox.max <- apply(transformed, 2L, max)
+  list(min = bbox.min, max = bbox.max)
+}
+
+.adjust_dim <- function(d0,m){
+  bbox <- .affine_extent(
+    list(x = c(0,d0[1]), y = c(0,d0[2])),
+    m = m)
+  m[3, ] <- m[3,] - bbox$min
+  newdim <- bbox$max - bbox$min
+  list(m=m, output.dim=newdim)
+}
+
+# extract_array ####
+
 setMethod(
   "extract_array",
-  "LazyAffineSeed",
+  "DelayedAffineSeed",
   function(x, index) {
     out_dim <- dim(x)
     index <- .normalize_index(index, out_dim)
@@ -328,9 +376,41 @@ setMethod(
   }
 )
 
+setMethod(
+  "extract_array",
+  "DelayedTranslateSeed",
+  function(x, index) {
+    out_dim <- dim(x)
+    index <- .normalize_index(index, out_dim)
+    S4Arrays::extract_array(x@seed, index)
+})
+
+# extent ####
+
+setMethod("extent", "DelayedArray", function(x){
+  extent(x@seed)
+})
+
+setMethod("extent", "DelayedAffineSeed", function(x){
+  bbox <- .affine_extent(extent(x@seed), x@m)
+  .get_extent(bbox$min, bbox$max)
+})
+
+setMethod("extent", "DelayedTranslateSeed", function(x){
+  Map(\(i,j){
+    i+j
+  }, extent(x@seed),x@shift)
+})
+
+setMethod("extent", "Array", function(x){
+  d <- dim(x)
+  list(x = c(0,d[1]), y = c(0,d[2]))
+})
+
+# lazy transformations ####
+
 lazy_affine <- function(x,
                         m,
-                        output.dim = NULL,
                         axes = NULL,
                         filter = c("bilinear", "none"),
                         bg.col = "black",
@@ -358,15 +438,13 @@ lazy_affine <- function(x,
     stop("'axes' must contain 'x' and 'y'")
   }
   
-  if (is.null(output.dim)) {
-    output.dim <- d0[xy]
-  }
-  
-  output.dim <- as.integer(output.dim)
-  
+  adj <- .adjust_dim(d0, m)
+  output.dim <- as.integer(adj$output.dim)
+  m <- adj$m
+
   d1 <- d0
   d1[xy] <- output.dim
-  
+
   dn <- dimnames(x)
   
   if (is.null(dn)) {
@@ -377,7 +455,7 @@ lazy_affine <- function(x,
   dn[xy[2]] <- list(NULL)
   
   seed <- new(
-    "LazyAffineSeed",
+    "DelayedAffineSeed",
     seed = x@seed,
     dim = as.integer(d1),
     dimnames = dn,
@@ -392,6 +470,125 @@ lazy_affine <- function(x,
   DelayedArray::DelayedArray(seed)
 }
 
-####
-# LazyScaleSeed ####
-####
+lazy_scale <- function(x,
+                        output.dim = NULL,
+                        output.origin = c(0,0),
+                        axes = NULL,
+                        filter = c("bilinear", "none"),
+                        bg.col = "black",
+                        antialias = TRUE,
+                        trace = FALSE) {
+  if (length(output.origin) != 2L || !is.numeric(output.origin)) 
+    stop("'output.origin' must be a numeric vector of length 2")
+  d = dim(x)[1:2]
+  ratio <- output.dim/d
+  m <- matrix(c(ratio[1], 0, (1 - ratio[1]) * output.origin[1], 
+                0, ratio[2], (1 - ratio[2]) * output.origin[2]), 3L, 
+              2L)
+  lazy_affine(x,
+              m,
+              axes = axes,
+              filter = filter,
+              bg.col = bg.col,
+              antialias = antialias,
+              trace = trace)
+}
+
+lazy_rotate <- function(x,
+                        angle,
+                        output.dim = NULL,
+                        output.origin = c(0,0),
+                        axes = NULL,
+                        filter = c("bilinear", "none"),
+                        bg.col = "black",
+                        antialias = TRUE,
+                        trace = FALSE) {
+  if (length(angle) != 1L || !is.numeric(angle)) 
+    stop("'angle' must be a number")
+  if (!missing(output.dim)) 
+    if (length(output.dim) != 2L || !is.numeric(output.dim)) 
+      stop("'output.dim' must be a numeric vector of length 2")
+  if ((angle%%90) == 0) 
+    filter = "none"
+  angle = angle * pi/180
+  d = dim(x)[1:2]
+  dx = d[1]
+  dy = d[2]
+  cos = cos(angle)
+  sin = sin(angle)
+  if (missing(output.origin)) {
+    newdim = c(dx * abs(cos) + dy * abs(sin), dx * abs(sin) + 
+                 dy * abs(cos))
+    offset = c(dx * max(0, -cos) + dy * max(0, sin), dx * 
+                 max(0, -sin) + dy * max(0, -cos))
+    if (missing(output.dim)) 
+      output.dim = newdim
+    else offset = offset + (output.dim - newdim)/2
+  }
+  else {
+    if (length(output.origin) != 2L || !is.numeric(output.origin)) 
+      stop("'output.origin' must be a numeric vector of length 2")
+    offset = c(output.origin[1L] * (1 - cos) + output.origin[2L] * 
+                 sin, output.origin[2L] * (1 - cos) - output.origin[1L] * 
+                 sin)
+  }
+  m <- matrix(c(cos, -sin, offset[1], sin, cos, offset[2]), 
+              3L, 2L)
+  lazy_affine(x,
+              m,
+              axes = axes,
+              filter = filter,
+              bg.col = bg.col,
+              antialias = antialias,
+              trace = trace)
+}
+
+lazy_translate <- function(x,
+                           shift = c(0,0),
+                           axes = NULL) {
+  if (length(shift) != 2L || !is.numeric(shift)) 
+    stop("'output.origin' must be a numeric vector of length 2")
+  
+  d0 <- dim(x)
+  
+  if (is.null(d0)) {
+    stop("'x' must be array-like")
+  }
+  
+  if (is.null(axes)) {
+    axes <- .default_axes(length(d0))
+  }
+  
+  if (length(axes) != length(d0)) {
+    stop("'axes' must have one entry per dimension of 'x'")
+  }
+  
+  xy <- match(c("x", "y"), axes)
+  
+  if (anyNA(xy)) {
+    stop("'axes' must contain 'x' and 'y'")
+  }
+  
+  d1 <- d0
+  d1[xy] <- dim(x)
+  
+  dn <- dimnames(x)
+  
+  if (is.null(dn)) {
+    dn <- vector("list", length(d1))
+  }
+  
+  dn[xy[1]] <- list(NULL)
+  dn[xy[2]] <- list(NULL)
+  
+  seed <- new(
+    "DelayedTranslateSeed",
+    seed = x@seed,
+    dim = as.integer(d1),
+    dimnames = dn,
+    shift = shift,
+    axes = axes
+  )
+  
+  DelayedArray::DelayedArray(seed)
+}
