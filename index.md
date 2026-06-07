@@ -1,10 +1,9 @@
 # SpatialData
 
-[![Bioc
-Check](https://github.com/HelenaLC/SpatialData/actions/workflows/check-bioc.yml/badge.svg?branch=main&event=push)](https://github.com/HelenaLC/SpatialData/actions/workflows/check-bioc.yml)
+[![R-universe](https://github.com/HelenaLC/spatialdataR/actions/workflows/r-universe.yaml/badge.svg?branch=main&event=push)](https://github.com/HelenaLC/spatialdataR/actions/workflows/r-universe.yaml)
 
-`SpatialData` provides an R interface to Python’s
-[SpatialData](https://spatialdata.scverse.org) framework. It enables the
+`spatialdataR` provides an R interface to Python’s
+[spatialdata](https://spatialdata.scverse.org) framework. It enables the
 representation, handling, and integration of diverse spatial omics
 datasets using the [OME-NGFF (Next Generation File
 Format)](https://ngff.openmicroscopy.org) standard. For more details on
@@ -14,7 +13,7 @@ al. (2024)](https://doi.org/10.1038/s41592-024-02212-x).
 ## Resources
 
 - [SpatialData
-  class](https://helenalc.github.io/SpatialData/articles/SpatialData.html)
+  class](https://helenalc.github.io/spatialdataR/articles/SpatialData.html)
   documentation.
 - [SpatialData.plot](https://github.com/HelenaLC/SpatialData.plot):
   Visualization capabilities.
@@ -28,7 +27,6 @@ al. (2024)](https://doi.org/10.1038/s41592-024-02212-x).
 - Out-of-memory handling of images and labels using `ZarrArray` (via the
   [Rarr](https://bioconductor.org/packages/Rarr) package).
 - Points and shapes are managed using
-  [arrow](https://cran.r-project.org/package=arrow) or
   [duckdb](https://cran.r-project.org/package=duckdb)-backed tables.
 - Functional annotations (e.g., gene expression) are represented as
   `SingleCellExperiment` objects, integrated via
@@ -44,15 +42,15 @@ if (!requireNamespace("BiocManager", quietly=TRUE))
     install.packages("BiocManager")
 
 # Install the development version from GitHub
-BiocManager::install("HelenaLC/SpatialData")
+BiocManager::install("HelenaLC/spatialdataR")
 ```
 
 ## Quick Start
 
 ``` r
 
-library(SpatialData)
-zs <- system.file("extdata", "blobs.zarr", package="SpatialData")
+library(spatialdataR)
+zs <- system.file("extdata", "blobs.zarr", package="spatialdataR")
 (sd <- readSpatialData(zs))
 ```
 

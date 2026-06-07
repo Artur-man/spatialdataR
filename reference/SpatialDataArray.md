@@ -24,14 +24,14 @@ Currently defined methods (here, `x` is a `SpatialDataArray`):
 ``` r
 SpatialDataImage(
   data = list(),
-  meta = SpatialDataAttrs(),
+  meta = SpatialDataAttrs(type = "image"),
   metadata = list(),
   ...
 )
 
 SpatialDataLabel(
   data = list(),
-  meta = SpatialDataAttrs(),
+  meta = SpatialDataAttrs(type = "label"),
   metadata = list(),
   ...
 )
@@ -102,7 +102,7 @@ x[i, j, ..., drop = FALSE]
 
 ``` r
 zs <- file.path("extdata", "blobs.zarr")
-zs <- system.file(zs, package="SpatialData")
+zs <- system.file(zs, package="spatialdataR")
 
 # get path to 'i'th element in layer 'l'
 fn <- \(l, i=1) list.dirs(file.path(zs, l), recursive=FALSE)[i]
@@ -139,8 +139,7 @@ readImage(fn("images"))
 #> Scales (3): (3,64,64 3,32,32 3,16,16)
 
 channels(x)
-#> label label label 
-#>     0     1     2 
+#> [1] 0 1 2
 dim(data(x, 1))   # highest res.
 #> [1]  3 64 64
 dim(data(x, Inf)) # lowest res.

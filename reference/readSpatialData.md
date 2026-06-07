@@ -53,7 +53,7 @@ readSpatialData(
 
 ``` r
 zs <- file.path("extdata", "blobs.zarr")
-zs <- system.file(zs, package="SpatialData")
+zs <- system.file(zs, package="spatialdataR")
 
 # read complete Zarr store
 (sd <- readSpatialData(zs))
@@ -88,8 +88,7 @@ fn <- \(.) tail(list.files(file.path(zs, .), full.names=TRUE), 1)
 #> class:  SpatialDataImage (MultiScale) 
 #> Scales (3): (3,64,64 3,32,32 3,16,16)
 channels(i)
-#> label label label 
-#>     0     1     2 
+#> [1] 0 1 2
 
 (p <- readPoint(fn("points")))
 #> class: SpatialDataPoint
@@ -117,8 +116,8 @@ data(s)
 #> # Data backed by DuckDB (dbplyr lazy evaluation)
 #> # Use ddbs_collect() or st_as_sf() to materialize to sf
 #> #
-#> # Source:   table<temp_view_07f3a027_f9f2_41b0_99d9_0a0280dbf7aa> [?? x 1]
-#> # Database: DuckDB 1.5.2 [unknown@Linux 6.17.0-1013-azure:R 4.6.0/:memory:]
+#> # Source:   table<temp_view_2ecb6208_3f2e_4aa1_96d6_7ba343c9199f> [?? x 1]
+#> # Database: DuckDB 1.5.2 [unknown@Linux 6.17.0-1015-azure:R 4.7.0/:memory:]
 #>   geometry                                                                      
 #>   <wk_wkb>                                                                      
 #> 1 <POLYGON ((42.52463 32.27672, 39.52212 24.63317, 36.38277 25.66096, 42.52463 …
