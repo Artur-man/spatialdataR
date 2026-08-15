@@ -2,6 +2,26 @@
 
 ## Preamble
 
+### Installation
+
+``` r
+
+ok <- require("BiocManager", quietly=TRUE)
+if (!ok) install.packages("BiocManager")
+BiocManager::install("spatialdataR")
+```
+
+Two companion packages, provide a variety of example datasets as well as
+visualization capabilities. These are still under active development,
+but can be installed from GitHub until their release through
+Bioconductor via:
+
+``` r
+
+BiocManager::install("HelenaLC/SpatialData.data") # example datasets
+BiocManager::install("HelenaLC/SpatialData.plot") # visualization
+```
+
 ### Introduction
 
 The
@@ -57,7 +77,7 @@ development.
 
 `SpatialData` are represented on-disk as Zarr stores. The package
 provides the
-[`readSpatialData()`](https://helenalc.github.io/SpatialData/reference/readSpatialData.md)
+[`readSpatialData()`](https://helenalc.github.io/spatialdataR/reference/readSpatialData.md)
 function to ingest an entire store, although arguments to control which
 layers and elements to read or not to read are also available.
 
@@ -143,7 +163,6 @@ imageNames(sd)
 
 # alternative ways 
 # (using list-style)
-names(sd[[1]])
 names(sd$images)
 names(sd[["images"]])
 ```
@@ -180,7 +199,7 @@ We here demonstrate how to access these slots for a given element
 
 `image` elements represent a special case, as they are stored as a list
 of `ZarrArray`s (one per multi-scale resolution). For them,
-[`data()`](https://helenalc.github.io/SpatialData/reference/SpatialData.md)
+[`data()`](https://helenalc.github.io/spatialdataR/reference/SpatialData.md)
 provides an additional argument `k` that specifies which resolution to
 retrieve:
 
@@ -269,9 +288,9 @@ on-disk Zarr attributes.
 
 The relationships between different elements and their respective
 coordinate spaces can be complex. `SpatialData` provides the
-[`CTgraph()`](https://helenalc.github.io/SpatialData/reference/CTgraph.md)
+[`CTgraph()`](https://helenalc.github.io/spatialdataR/reference/CTgraph.md)
 and
-[`CTplot()`](https://helenalc.github.io/SpatialData/reference/CTgraph.md)
+[`CTplot()`](https://helenalc.github.io/spatialdataR/reference/CTgraph.md)
 functions to construct and visualize a directed graph of these
 relationships:
 
@@ -288,7 +307,7 @@ CTplot(g)
 ![](SpatialData_files/figure-html/ct-graph-1.png)
 
 The
-[`transform()`](https://helenalc.github.io/SpatialData/reference/trans.md)
+[`transform()`](https://helenalc.github.io/spatialdataR/reference/trans.md)
 function resolves the necessary steps to project an element into a
 target coordinate system by traversing this graph, and applying the
 respective transformation(s). Under the hood, this involves:
@@ -299,9 +318,9 @@ respective transformation(s). Under the hood, this involves:
 
 2.  Applying the appropriate transformation function(s) in the correct
     order (e.g.,
-    [`scale()`](https://helenalc.github.io/SpatialData/reference/trans.md)
+    [`scale()`](https://helenalc.github.io/spatialdataR/reference/trans.md)
     then
-    [`translation()`](https://helenalc.github.io/SpatialData/reference/trans.md)).
+    [`translation()`](https://helenalc.github.io/spatialdataR/reference/trans.md)).
 
 ``` r
 
@@ -325,8 +344,8 @@ do.call(rbind, c(a=extent(a), b=extent(b)))
 
 ### Cropping
 
-[`crop()`](https://helenalc.github.io/SpatialData/reference/crop.md) may
-be used to subset elements – across all layers – according to a
+[`crop()`](https://helenalc.github.io/spatialdataR/reference/crop.md)
+may be used to subset elements – across all layers – according to a
 *spatial* bounding box or polygon. This region may be supplied in
 different ways, including as a `SpatialDataShape`. In addition, the
 following are okay:
@@ -366,7 +385,7 @@ points(point(sq)$geometry, col="red")
 
 ### Masking
 
-[`mask()`](https://helenalc.github.io/SpatialData/reference/mask.md)
+[`mask()`](https://helenalc.github.io/spatialdataR/reference/mask.md)
 aggregates data between elements and across layers, with support for
 masking of points by images by labels, points by shapes, and shapes by
 shapes:
@@ -434,16 +453,47 @@ sp <- mask(sd, i="blobs_polygons", j="blobs_circles")
 
 ### Querying
 
-[`query()`](https://helenalc.github.io/SpatialData/reference/query.md)
+[`query()`](https://helenalc.github.io/spatialdataR/reference/query.md)
 filters elements across all layers based on `table` metadata in
 `dplyr`-style syntax, where queries may be passed via the ellipsis
-(`...`):
+(`...`). Here, we demonstrate a simple example where we mock up some
+`table` metadata and filter for instances of `foo == "A"`; note that
+this retains only `table` observations matching our criterion *and*
+drops any other elements/layers.
 
-TODO
+``` r
+
+se <- table(sd)
+se$foo <- sample(c("A", "B"), ncol(se), replace=TRUE)
+sp <- `table<-`(sd, value=se)
+(sp <- query(sp, foo == "A"))
+```
+
+    ## class: SpatialData
+    ## - images(0):
+    ## - labels(1):
+    ##   - blobs_labels (64,64)
+    ## - points(0):
+    ## - shapes(0):
+    ## - tables(1):
+    ##   - table (3,4) [blobs_labels]
+    ## coordinate systems(5):
+    ## - global(1): blobs_labels
+    ## - scale(1): blobs_labels
+    ## - translation(1): blobs_labels
+    ## - affine(1): blobs_labels
+    ## - sequence(1): blobs_labels
+
+``` r
+
+table(sp)$foo
+```
+
+    ## [1] "A" "A" "A" "A"
 
 ### Combining
 
-[`combine()`](https://helenalc.github.io/SpatialData/reference/combine.md)
+[`combine()`](https://helenalc.github.io/spatialdataR/reference/combine.md)
 can be used to merge two `SpatialData` objects into one (or many, via
 `do.call(list(...), combine)`). Here, elements names will be made unique
 across objects via
@@ -476,7 +526,7 @@ imageNames(sp)
 
 ### Coordinates
 
-[`centroids()`](https://helenalc.github.io/SpatialData/reference/centroids.md)
+[`centroids()`](https://helenalc.github.io/spatialdataR/reference/centroids.md)
 may be used to extract spatial coordinates for every instance in a given
 element. This applies all layers except images and tables. Notably, for
 labels and shapes, the centroids of each region are returned (center of
@@ -495,7 +545,7 @@ head(centroids(point(sd)))
     ## 5 13  6 gene_b
     ## 6 33 61 gene_b
 
-[`extent()`](https://helenalc.github.io/SpatialData/reference/extent.md)
+[`extent()`](https://helenalc.github.io/spatialdataR/reference/extent.md)
 will obtain the range of an element’s spatial coordinates in a target
 coordinate space. This can be done for one element, or object-wide in
 order to obtain the largest extent across all elements in an object.
@@ -559,7 +609,7 @@ rbind(native=unlist(xy), scaled=unlist(yx))
 sessionInfo()
 ```
 
-    ## R Under development (unstable) (2026-06-05 r90111)
+    ## R Under development (unstable) (2026-06-21 r90185)
     ## Platform: x86_64-pc-linux-gnu
     ## Running under: Ubuntu 24.04.4 LTS
     ## 
@@ -581,42 +631,41 @@ sessionInfo()
     ## [8] base     
     ## 
     ## other attached packages:
-    ##  [1] SingleCellExperiment_1.35.1 SummarizedExperiment_1.43.0
-    ##  [3] Biobase_2.73.1              GenomicRanges_1.65.0       
+    ##  [1] SingleCellExperiment_1.35.2 SummarizedExperiment_1.43.0
+    ##  [3] Biobase_2.73.2              GenomicRanges_1.65.1       
     ##  [5] Seqinfo_1.3.0               IRanges_2.47.2             
-    ##  [7] S4Vectors_0.51.3            BiocGenerics_0.59.7        
+    ##  [7] S4Vectors_0.51.6            BiocGenerics_0.59.12       
     ##  [9] generics_0.1.4              MatrixGenerics_1.25.0      
-    ## [11] matrixStats_1.5.0           spatialdataR_0.99.43       
+    ## [11] matrixStats_1.5.0           spatialdataR_0.99.44       
     ## [13] BiocStyle_2.41.0           
     ## 
     ## loaded via a namespace (and not attached):
     ##  [1] tidyselect_1.2.1    blob_1.3.0          dplyr_1.2.1        
-    ##  [4] R.utils_2.13.0      fastmap_1.2.0       duckdb_1.5.2       
-    ##  [7] digest_0.6.39       lifecycle_1.0.5     sf_1.1-1           
+    ##  [4] R.utils_2.13.0      fastmap_1.2.0       duckdb_1.5.5       
+    ##  [7] digest_0.6.39       lifecycle_1.0.5     sf_1.1-2           
     ## [10] paws.storage_0.10.0 magrittr_2.0.5      compiler_4.7.0     
-    ## [13] rlang_1.2.0         sass_0.4.10         tools_4.7.0        
+    ## [13] rlang_1.3.0         sass_0.4.10         tools_4.7.0        
     ## [16] yaml_2.3.12         knitr_1.51          S4Arrays_1.13.0    
     ## [19] htmlwidgets_1.6.4   classInt_0.4-11     curl_7.1.0         
-    ## [22] reticulate_1.46.0   DelayedArray_0.39.3 abind_1.4-8        
-    ## [25] KernSmooth_2.23-26  withr_3.0.2         purrr_1.2.2        
+    ## [22] reticulate_1.46.0   DelayedArray_0.39.5 abind_1.4-8        
+    ## [25] KernSmooth_2.23-26  withr_3.0.3         purrr_1.2.2        
     ## [28] desc_1.4.3          R.oo_1.27.1         grid_4.7.0         
     ## [31] e1071_1.7-17        cli_3.6.6           rmarkdown_2.31     
     ## [34] crayon_1.5.3        ragg_1.5.2          otel_0.2.0         
     ## [37] DBI_1.3.0           cachem_1.1.0        proxy_0.4-29       
     ## [40] BiocManager_1.30.27 XVector_0.53.0      vctrs_0.7.3        
-    ## [43] Matrix_1.7-5        jsonlite_2.0.0      bookdown_0.46      
+    ## [43] Matrix_1.7-5        jsonlite_2.0.0      bookdown_0.47      
     ## [46] RBGL_1.89.0         Rgraphviz_2.57.0    systemfonts_1.3.2  
     ## [49] jquerylib_0.1.4     units_1.0-1         glue_1.8.1         
-    ## [52] pkgdown_2.2.0       ZarrArray_1.1.0     Rarr_2.0.1         
-    ## [55] tibble_3.3.1        pillar_1.11.1       rappdirs_0.3.4     
-    ## [58] htmltools_0.5.9     graph_1.91.0        R6_2.6.1           
-    ## [61] dbplyr_2.5.2        httr2_1.2.2         wk_0.9.5           
-    ## [64] textshaping_1.0.5   evaluate_1.0.5      lattice_0.22-9     
-    ## [67] R.methodsS3_1.8.2   png_0.1-9           duckspatial_1.1.1  
-    ## [70] paws.common_0.8.9   bslib_0.11.0        class_7.3-23       
-    ## [73] Rcpp_1.1.1-1.1      uuid_1.2-2          SparseArray_1.13.2 
-    ## [76] anndataR_1.3.0      xfun_0.58           fs_2.1.0           
-    ## [79] pkgconfig_2.0.3
+    ## [52] pkgdown_2.2.1       ZarrArray_1.0.1     Rarr_2.0.1         
+    ## [55] tibble_3.3.1        pillar_1.11.1       htmltools_0.5.9    
+    ## [58] graph_1.91.0        R6_2.6.1            dbplyr_2.6.0       
+    ## [61] httr2_1.3.0         wk_0.9.5            textshaping_1.0.5  
+    ## [64] evaluate_1.0.5      lattice_0.22-9      R.methodsS3_1.8.2  
+    ## [67] png_0.1-9           duckspatial_1.2.1   paws.common_0.8.10 
+    ## [70] bslib_0.12.0        class_7.3-23        Rcpp_1.1.2         
+    ## [73] uuid_1.2-2          SparseArray_1.13.2  anndataR_1.2.1     
+    ## [76] xfun_0.60           fs_2.1.0            pkgconfig_2.0.3
 
 ### References
 
