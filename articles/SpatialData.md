@@ -476,7 +476,7 @@ sp <- `table<-`(sd, value=se)
     ## - points(0):
     ## - shapes(0):
     ## - tables(1):
-    ##   - table (3,4) [blobs_labels]
+    ##   - table (3,7) [blobs_labels]
     ## coordinate systems(5):
     ## - global(1): blobs_labels
     ## - scale(1): blobs_labels
@@ -489,7 +489,7 @@ sp <- `table<-`(sd, value=se)
 table(sp)$foo
 ```
 
-    ## [1] "A" "A" "A" "A"
+    ## [1] "A" "A" "A" "A" "A" "A" "A"
 
 ### Combining
 
@@ -609,7 +609,7 @@ rbind(native=unlist(xy), scaled=unlist(yx))
 sessionInfo()
 ```
 
-    ## R Under development (unstable) (2026-10-06 r90643)
+    ## R Under development (unstable) (2026-10-10 r90659)
     ## Platform: x86_64-pc-linux-gnu
     ## Running under: Ubuntu 24.04.5 LTS
     ## 
@@ -662,7 +662,7 @@ sessionInfo()
     ## [58] htmltools_0.5.9     graph_1.91.0        R6_2.6.1           
     ## [61] dbplyr_2.6.0        httr2_1.3.0         wk_0.9.5           
     ## [64] textshaping_1.0.5   evaluate_1.0.5      lattice_0.23-1     
-    ## [67] R.methodsS3_1.8.2   png_0.1-9           duckspatial_1.2.1  
+    ## [67] R.methodsS3_1.8.2   png_0.1-9           duckspatial_1.3.0  
     ## [70] paws.common_0.9.0   bslib_0.12.0        class_7.3-24       
     ## [73] Rcpp_1.1.2          uuid_1.2-2          SparseArray_1.13.4 
     ## [76] anndataR_1.2.2      xfun_0.61           fs_2.1.0           
