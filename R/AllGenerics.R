@@ -101,6 +101,8 @@ setGeneric("geom_type", \(x, ...) standardGeneric("geom_type"))
 setGeneric("multiscales", \(x, ...) standardGeneric("multiscales"))
 setGeneric("datasets", \(x, ...) standardGeneric("datasets"))
 
+setGeneric("version", \(x, ...) standardGeneric("version"))
+
 # tbl ----
 
 setGeneric("hasTable", \(x, i, ...) standardGeneric("hasTable"))
