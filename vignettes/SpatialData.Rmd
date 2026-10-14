@@ -39,7 +39,7 @@ visualization capabilities. These are still under active development, but
 can be installed from GitHub until their release through Bioconductor via:
 
 ```{r eval=FALSE}
-BiocManager::install("HelenaLC/SpatialData.data") # example datasets
+BiocManager::install("SpatialData.data") # example datasets
 BiocManager::install("HelenaLC/SpatialData.plot") # visualization
 ```
 

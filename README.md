@@ -23,12 +23,13 @@ For more details on the framework, see [Marconato et al. (2024)](https://doi.org
 
 ## Installation
 
+This package is available in Bioconductor:
+
 ```r
 if (!requireNamespace("BiocManager", quietly=TRUE))
     install.packages("BiocManager")
 
-# Install the development version from GitHub
-BiocManager::install("HelenaLC/spatialdataR")
+BiocManager::install("spatialdataR")
 ```
 
 ## Quick Start
