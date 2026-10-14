@@ -107,13 +107,14 @@ readShape <- function(x, ...) {
 #' @importFrom S4Vectors metadata metadata<-
 #' @importFrom SummarizedExperiment colData colData<-
 #' @importFrom SingleCellExperiment int_colData int_colData<- int_metadata int_metadata<-
+#' @importFrom Rarr read_zarr_attributes
 readTable <- function(x) {
     suppressWarnings({ # suppress warnings related to hidden files
         sce <- anndataR::read_zarr(x, as="SingleCellExperiment")
     })
     # move these to 'int_metadata'
     nm <- "spatialdata_attrs"
-    md <- metadata(sce)[[nm]]
+    md <- Rarr::read_zarr_attributes(x)
     int_metadata(sce)[[nm]] <- md
     int_metadata(sce)$source_path <- x
     metadata(sce)[[nm]] <- NULL
