@@ -6,6 +6,7 @@
 \alias{CTlist}
 \alias{CTname}
 \alias{CTtype}
+\alias{CTunit}
 \alias{CTdata}
 \alias{addCT}
 \alias{rmvCT}
@@ -14,9 +15,11 @@
 \alias{CTdata,SpatialDataAttrs-method}
 \alias{CTtype,SpatialDataAttrs-method}
 \alias{CTname,SpatialDataAttrs-method}
+\alias{CTunit,SpatialDataAttrs-method}
 \alias{axes,SpatialDataElement-method}
 \alias{CTlist,SpatialDataElement-method}
 \alias{CTtype,SpatialDataElement-method}
+\alias{CTunit,SpatialDataElement-method}
 \alias{CTname,SpatialDataElement-method}
 \alias{CTdata,SpatialDataElement-method}
 \alias{CTname,SpatialData-method}
@@ -36,11 +39,15 @@
 
 \S4method{CTname}{SpatialDataAttrs}(x, ...)
 
+\S4method{CTunit}{SpatialDataAttrs}(x, ...)
+
 \S4method{axes}{SpatialDataElement}(x, y = NULL, ...)
 
 \S4method{CTlist}{SpatialDataElement}(x, ...)
 
 \S4method{CTtype}{SpatialDataElement}(x, ...)
+
+\S4method{CTunit}{SpatialDataElement}(x, ...)
 
 \S4method{CTname}{SpatialDataElement}(x, ...)
 
@@ -85,6 +92,8 @@ element type (e.g., numeric(1) for rotation, numeric(2) for scaling in 2D)}
   transformation data (e.g., scalar numeric for rotation)
 \item \code{CTlist}: list;
   list of transformation specifications per OME-NGFF spec
+\item \code{CTunit}: list of lists;
+  for each transformation, the unit of each axis
 \item \code{add/rmvCT}: 
   \code{SpatialDataElement} or \code{SpatialDataAttrs} 
   with transformation(s) added/removed

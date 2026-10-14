@@ -1,6 +1,6 @@
 #' @name CTutils
 #' @title Coord. trans. utilities
-#' @aliases axes CTlist CTname CTtype CTdata addCT rmvCT
+#' @aliases axes CTlist CTname CTtype CTunit CTdata addCT rmvCT
 #' 
 #' @param x \code{SpatialData}, an element, or \code{SpatialDataAttrs}.
 #' @param y NULL (default) returns a list where each element is 
@@ -24,6 +24,8 @@
 #'   transformation data (e.g., scalar numeric for rotation)
 #' \item \code{CTlist}: list;
 #'   list of transformation specifications per OME-NGFF spec
+#' \item \code{CTunit}: list of lists;
+#'   for each transformation, the unit of each axis
 #' \item \code{add/rmvCT}: 
 #'   \code{SpatialDataElement} or \code{SpatialDataAttrs} 
 #'   with transformation(s) added/removed
@@ -100,6 +102,17 @@ setMethod("CTname", "SpatialDataAttrs", \(x, ...) {
     vapply(CTlist(x), \(.) .$output$name, character(1))
 })
 
+#' @rdname CTutils
+#' @export
+setMethod("CTunit", "SpatialDataAttrs", \(x, ...) {
+    lapply(CTlist(x), \(.) {
+        ax <- .$output$axes
+        setNames(
+            lapply(ax, \(.) .$unit),
+            vapply(ax, \(.) .$name, character(1))) 
+    }) |> setNames(CTname(x))
+})
+
 # SpatialDataElement ----
 
 #' @rdname CTutils
@@ -113,6 +126,10 @@ setMethod("CTlist", "SpatialDataElement", \(x, ...) CTlist(meta(x), ...))
 #' @rdname CTutils
 #' @export
 setMethod("CTtype", "SpatialDataElement", \(x, ...) CTtype(meta(x), ...))
+
+#' @rdname CTutils
+#' @export
+setMethod("CTunit", "SpatialDataElement", \(x, ...) CTunit(meta(x), ...))
 
 #' @rdname CTutils
 #' @export
