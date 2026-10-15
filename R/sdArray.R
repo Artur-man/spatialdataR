@@ -116,9 +116,8 @@ setMethod("data_type", "DelayedArray", \(x) {
 # internal use only!
 #' @noRd 
 .ch <- \(x) {
-    v <- tryCatch(.ome_ver(x), error=\(e) NULL)
-    if (is.null(v)) return()
-    if (v == "0.5") x <- x$ome
+    if (is.null(tryCatch(.ome_ver(x), error=\(e) NULL))) return()
+    x <- .ome_root(x)
     # NOTE: can't use 'vapply' as we 
     # have encountered integer 'label's  
     x <- x$omero$channels

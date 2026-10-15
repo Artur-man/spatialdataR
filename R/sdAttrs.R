@@ -199,6 +199,18 @@ setMethod("$", "SpatialDataAttrs", \(x, name) x[[name]])
     return(v)
 }
 
+# root of OME metadata
+.ome_root <- \(x) {
+    v <- tryCatch(.ome_ver(x), error=\(e) "0.99")
+    if (numeric_version(v) >= "0.5") x$ome else x
+}
+
+`.ome_root<-` <- \(x, value) {
+    v <- tryCatch(.ome_ver(x), error=\(e) "0.99")
+    if (numeric_version(v) >= "0.5") x$ome <- value else x <- value
+    x
+}
+
 .get_ome_version <- \(x){
   switch(as.character(x), 
          "0.1" = "0.4",
@@ -211,9 +223,8 @@ setMethod("$", "SpatialDataAttrs", \(x, name) x[[name]])
 # internal use only!
 #' @noRd 
 setMethod("multiscales", "list", \(x) {
-    v <- tryCatch(.ome_ver(x), error=\(e) NULL)
-    if (is.null(v)) return()
-    switch(v, "0.5"=x$ome$multiscales, x$multiscales)
+    if (is.null(tryCatch(.ome_ver(x), error=\(e) NULL))) return()
+    .ome_root(x)$multiscales
 })
 
 # internal use only!
