@@ -177,11 +177,10 @@ setMethod("rmvCT", "SpatialDataAttrs", \(x, i) {
     ms <- "multiscales"
     ct <- "coordinateTransformations"
     if (length(i)) {
-        if (is.null(x[[ms]])) {
+        if (is.null(multiscales(x))) {
             x[[ct]] <- x[[ct]][-i]
         } else {
-            y <- x[[ms]][[1]][[ct]][-i]
-            x[[ms]][[1]][[ct]] <- y
+            .ome_root(x)[[ms]][[1]][[ct]] <- .ome_root(x)[[ms]][[1]][[ct]][-i]
         }
     }
     return(x)
@@ -235,10 +234,7 @@ setMethod("addCT", "SpatialDataAttrs", \(x, name, type="identity", data=NULL) {
     if (is.null(multiscales(x))) {
         x[[ct]] <- new
     } else {
-        switch( 
-            tryCatch(.ome_ver(x), error=\(e) "9.9"), 
-            "0.4"=x[[ms]][[1]][[ct]] <- new,
-            x$ome[[ms]][[1]][[ct]] <- new)
+        .ome_root(x)[[ms]][[1]][[ct]] <- new
     }
     return(x)
 })

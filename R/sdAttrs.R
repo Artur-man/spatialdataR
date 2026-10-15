@@ -141,42 +141,45 @@ SpatialDataAttrs <- \(x, type=c("image", "label", "point", "shape"),
 }
 
 # Internal helper to get axes names
-.ax_names <- function(ax){
-  if (is.character(ax[[1]])) {
-    unlist(ax)
-  } else {
-    vapply(ax, \(.) .$name, character(1))
-  }
+.ax_names <- function(ax) {
+    if (is.character(ax[[1]])) {
+        unlist(ax)
+    } else {
+        vapply(ax, \(.) .$name, character(1))
+    }
 }
 
 # Internal helper to generate coordinate transformations
 .default_ct <- \(axes, name="global", type="identity", data=NULL) {
-    ct <- list(input=list(axes=axes, 
-                          name=paste(.ax_names(axes), collapse = "")), 
-               output=list(axes=axes, 
-                           name=name), 
-               type=type)
+    ct <- list(
+        input=list(
+            axes=axes, 
+            name=paste(.ax_names(axes), collapse="")), 
+        output=list(
+            axes=axes, 
+            name=name), 
+        type=type)
     if (!is.null(data)) ct[[type]] <- data
     list(ct)
 }
 
 # Internal helper to generate datasets
-.default_ds <- function(axes, scale_factors = NULL){
-  scale_factors <- cumprod(c(1,scale_factors))
-  paths <- paste0(seq_along(scale_factors) - 1)
-  mapply(\(p,s) {
-    list(
-      coordinateTransformations = list(
+.default_ds <- function(axes, scale_factors=NULL) {
+    scale_factors <- cumprod(c(1, scale_factors))
+    paths <- paste0(seq_along(scale_factors) - 1)
+    mapply(\(p,s) {
         list(
-          scale = lapply(
-            axes,
-            \(.) if(. == "c") 1 else s),
-          type = "scale"
+            coordinateTransformations = list(
+                list(
+                    scale=lapply(
+                        axes,
+                        \(.) if(. == "c") 1 else s),
+                    type = "scale"
+                )
+            ),
+            path = p
         )
-      ),
-      path = p
-    )
-  }, paths, scale_factors, USE.NAMES = FALSE, SIMPLIFY = FALSE)
+    }, paths, scale_factors, USE.NAMES=FALSE, SIMPLIFY=FALSE)
 }
 
 #' @export
@@ -195,11 +198,22 @@ setMethod("$", "SpatialDataAttrs", \(x, name) x[[name]])
         x$omero$version %||% 
         x$ome$version
     if (!length(v)) stop("couldn't find 'version' in 'spatialdata_attrs'")
-    v <- .val_ome_ver(v)
-    return(v)
+    .val_ome_ver(v)
 }
 
-.get_ome_version <- \(x){
+# root of OME metadata
+.ome_root <- \(x) {
+    v <- tryCatch(.ome_ver(x), error=\(e) "0.99")
+    if (numeric_version(v) >= "0.5") x$ome else x
+}
+
+`.ome_root<-` <- \(x, value) {
+    v <- tryCatch(.ome_ver(x), error=\(e) "0.99")
+    if (numeric_version(v) >= "0.5") x$ome <- value else x <- value
+    x
+}
+
+.get_ome_version <- \(x) {
   switch(as.character(x), 
          "0.1" = "0.4",
          "0.2" = "0.4-dev-spatialdata",
@@ -211,9 +225,8 @@ setMethod("$", "SpatialDataAttrs", \(x, name) x[[name]])
 # internal use only!
 #' @noRd 
 setMethod("multiscales", "list", \(x) {
-    v <- tryCatch(.ome_ver(x), error=\(e) NULL)
-    if (is.null(v)) return()
-    switch(v, "0.5"=x$ome$multiscales, x$multiscales)
+    if (is.null(tryCatch(.ome_ver(x), error=\(e) NULL))) return()
+    .ome_root(x)$multiscales
 })
 
 # internal use only!
