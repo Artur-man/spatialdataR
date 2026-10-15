@@ -125,7 +125,7 @@ setValidity2("SpatialData", .validateSpatialData)
 
 # TODO: version-specific .zattrs validation for all layers
 
-.ms <- \(x) x$multiscales[[1]] %||% x$ome$multiscales[[1]]
+.ms <- \(x) multiscales(x)[[1]]
 
 .validateAttrs_multiscales <- \(x, msg) {
     if (is.null(ms <- .ms(x))) {

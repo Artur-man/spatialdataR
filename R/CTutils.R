@@ -177,7 +177,7 @@ setMethod("rmvCT", "SpatialDataAttrs", \(x, i) {
     ms <- "multiscales"
     ct <- "coordinateTransformations"
     if (length(i)) {
-        if (is.null(x[[ms]])) {
+        if (is.null(multiscales(x))) {
             x[[ct]] <- x[[ct]][-i]
         } else {
             y <- x[[ms]][[1]][[ct]][-i]
