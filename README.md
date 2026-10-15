@@ -10,9 +10,9 @@ For more details on the framework, see [Marconato et al. (2024)](https://doi.org
 ## Resources
 
 - [SpatialData class](https://helenalc.github.io/spatialdataR/articles/SpatialData.html) documentation.
-- [SpatialData.plot](https://github.com/HelenaLC/SpatialData.plot): Visualization capabilities.
-- [SpatialData.demo](https://helenalc.github.io/SpatialData.demo/): Biotechnology workflows.
-- [SpatialData.data](https://github.com/HelenaLC/SpatialData.data): Example `SpatialData`sets.
+- [SpatialData.plot](https://helenalc.github.io/SpatialData.plot): Visualization capabilities.
+- [SpatialData.data](https://helenalc.github.io/SpatialData.data): Example `SpatialData`sets.
+- [SpatialData.demo](https://helenalc.github.io/SpatialData.demo): Biotechnology workflows.
 
 ## Key features
 
@@ -23,12 +23,11 @@ For more details on the framework, see [Marconato et al. (2024)](https://doi.org
 
 ## Installation
 
-This package is available in Bioconductor:
+The package is available through Bioconductor:
 
 ```r
 if (!requireNamespace("BiocManager", quietly=TRUE))
     install.packages("BiocManager")
-
 BiocManager::install("spatialdataR")
 ```
 
