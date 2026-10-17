@@ -26,7 +26,6 @@
 \alias{rmvCT,SpatialDataElement-method}
 \alias{rmvCT,SpatialDataAttrs-method}
 \alias{addCT,SpatialDataElement-method}
-\alias{addCT,SpatialDataAttrs-method}
 \title{Coord. trans. utilities}
 \usage{
 \S4method{axes}{SpatialDataAttrs}(x, y = NULL, ...)
@@ -60,8 +59,6 @@
 \S4method{rmvCT}{SpatialDataAttrs}(x, i)
 
 \S4method{addCT}{SpatialDataElement}(x, name, type = "identity", data = NULL)
-
-\S4method{addCT}{SpatialDataAttrs}(x, name, type = "identity", data = NULL)
 }
 \arguments{
 \item{x}{\code{SpatialData}, an element, or \code{SpatialDataAttrs}.}
@@ -111,14 +108,14 @@ x <- system.file(x, package="spatialdataR")
 x <- readSpatialData(x, tables=FALSE)
 
 # view available target coordinate systems
-CTname(z <- meta(label(x)))
+CTname(y <- label(x))
 
 # add
-addCT(z, "scale", "scale", c(12, 34)) # overwrite
-CTname(addCT(z, "new", "translation", c(12, 34)))
+CTname(addCT(y, "new", "translation", c(12, 34))) 
+CTdata(addCT(y, "scale", "scale", c(12, 34)), "scale") # overwrite
 
 # rmv
-CTname(rmvCT(z, 2))        # by index
-CTname(rmvCT(z, "scale"))  # by name
-CTname(rmvCT(z, "global")) # identity is protected
+CTname(rmvCT(y, 2))        # by index
+CTname(rmvCT(y, "scale"))  # by name
+CTname(rmvCT(y, "global")) # identity is protected
 }
