@@ -14,6 +14,7 @@ changes in version 0.99.45
 - setup auto-benchmarks
 - add contribution guidelines
 - code style and efficiency improvements
+<<<<<<< HEAD
 - added read support from S3 object storage for
   "images", "labels", "points", "shapes" elements
 - added new 'CTunit()' helper function
