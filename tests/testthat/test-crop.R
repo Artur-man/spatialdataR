@@ -14,10 +14,15 @@ test_that("crop,SpatialData", {
                 dim(element(a, e)), 
                 dim(element(b, e)))
     }
+    # all-exclusive crop
+    y <- list(xmin=-100, xmax=-10, ymin=-100, ymax=-10)
+    expect_error(crop(x, y))
     # all-inclusive crop
     y <- list(xmin=-100, xmax=100, ymin=-100, ymax=100)
     z <- crop(x, y)
     f(x, z)
+    # invalid coordinate system
+    expect_error(crop(x, y, "foobar"))
     # elements without specified coordinate system 
     # are dropped/retained according to 'drop'
     y <- list(xmin=-1e3, xmax=1e3, ymin=-1e3, ymax=1e3)
@@ -38,8 +43,8 @@ test_that("crop,SpatialData", {
     expect_length(point(y), 1)
     expect_length(shapes(y), 0)
     expect_length(tables(y), 1)
-    expect_all_true(c(vapply(labels(y), dim, integer(2))) == 2)
-    expect_all_true(c(vapply(images(y), \(.) dim(.)[-1], integer(2))) == 2)
+    expect_all_true(c(vapply(y$labels, dim, integer(2))) == 2)
+    expect_all_true(c(vapply(y$images, \(.) dim(.)[-1], integer(2))) == 2)
 })
 
 test_that("crop,.check_box", {
