@@ -440,19 +440,5 @@ setMethod("format", "SingleCellExperiment", \(x) meta(x)$version)
 
 #' @export
 #' @rdname format
-#' @importFrom dplyr tibble
-setMethod("format", "SpatialData", \(x, simplify=TRUE, ...) {
-    names(ls) <- ls <- rownames(x)
-    ps <- lapply(ls, \(l) {
-        names(es) <- es <- names(x[[l]])
-        lapply(es, \(e) format(x[[l]][[e]]))
-    })
-    
-    if (!simplify) return(ps)
-    
-    do.call(rbind, lapply(names(ps), \(l) 
-                          do.call(rbind, lapply(names(ps[[l]]), \(e)
-                                                tibble(layer = l, element = e, format = ps[[l]][[e]])
-                          ))
-    ))
-})
+setMethod("format", "SpatialData", \(x, simplify=TRUE, ...)
+          .element_apply(x, format, "format", simplify))
