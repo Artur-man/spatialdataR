@@ -396,3 +396,63 @@ setReplaceMethod("instances", c("SingleCellExperiment", "ANY"), \(x, value) {
     int_colData(x)[[ik]] <- value
     return(x)
 })
+
+# version ----
+
+#' @name format
+#' @title Retrieve versions of \code{SpatialData} elements
+#' 
+#' @param object \code{\link{SpatialData}} object or one of its elements.
+#' @param simplify logical scalar; whether to flatten paths into a tibble.
+#' @param ... ignored.
+#' 
+#' @returns
+#' for single elements, a character string; 
+#' for \link{SpatialData} objects, if \code{simplify=TRUE} (default), 
+#' a \code{tibble} where rows=elements and columns=layers/elements/paths. 
+#' if \code{simplify=FALSE}, a depth-3 list where levels=layers/elements/paths.
+#' 
+#' @examples
+#' zs <- file.path("extdata", "blobs.zarr")
+#' zs <- system.file(zs, package="spatialdataR")
+#' sd <- readSpatialData(zs)
+#' 
+#' # element-wise
+#' format(shape(sd))
+#' 
+#' # object-wide
+#' format(sd)
+#' format(sd, FALSE)$labels
+#' 
+NULL
+
+#' @export
+#' @rdname format
+setMethod("format", "SpatialDataElement", \(x) format(meta(x)))
+
+#' @export
+#' @rdname format
+setMethod("format", "SpatialDataAttrs", \(x) x$spatialdata_attrs$version)
+
+#' @export
+#' @rdname format
+setMethod("format", "SingleCellExperiment", \(x) meta(x)$version)
+
+#' @export
+#' @rdname format
+#' @importFrom dplyr tibble
+setMethod("format", "SpatialData", \(x, simplify=TRUE, ...) {
+    names(ls) <- ls <- rownames(x)
+    ps <- lapply(ls, \(l) {
+        names(es) <- es <- names(x[[l]])
+        lapply(es, \(e) format(x[[l]][[e]]))
+    })
+    
+    if (!simplify) return(ps)
+    
+    do.call(rbind, lapply(names(ps), \(l) 
+                          do.call(rbind, lapply(names(ps[[l]]), \(e)
+                                                tibble(layer = l, element = e, format = ps[[l]][[e]])
+                          ))
+    ))
+})

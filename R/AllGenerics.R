@@ -78,6 +78,7 @@ setGeneric("feature_key", \(x, ...) standardGeneric("feature_key"))
 setGeneric("feature_key<-", \(x, value) standardGeneric("feature_key<-"))
 setGeneric("instance_key", \(x, ...) standardGeneric("instance_key"))
 setGeneric("instance_key<-", \(x, value) standardGeneric("instance_key<-"))
+setGeneric("format", \(x, ...) standardGeneric("format"))
 
 # uts ----
 
@@ -102,8 +103,6 @@ setGeneric("data_type", \(x, ...) standardGeneric("data_type"))
 setGeneric("geom_type", \(x, ...) standardGeneric("geom_type"))
 setGeneric("multiscales", \(x, ...) standardGeneric("multiscales"))
 setGeneric("datasets", \(x, ...) standardGeneric("datasets"))
-
-setGeneric("version", \(x, ...) standardGeneric("version"))
 
 # tbl ----
 
