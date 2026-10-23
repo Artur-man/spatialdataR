@@ -41,7 +41,7 @@
 \alias{shapeNames<-}
 \alias{tableNames<-}
 \alias{[[<-,SpatialData,character,ANY-method}
-\alias{[[<-,SpatialData,numeric,ANY-method}
+\alias{[[<-,SpatialData,ANY,ANY-method}
 \alias{$,SpatialData-method}
 \alias{$<-,SpatialData-method}
 \alias{[[,SpatialData,numeric,ANY-method}
@@ -63,7 +63,8 @@
 \alias{points,SpatialData-method}
 \alias{shapes,SpatialData-method}
 \alias{tables,SpatialData-method}
-\alias{[[<-,SpatialData,ANY,ANY-method}
+\alias{[[<-,SpatialData,character,ANY,ANY-method}
+\alias{[[<-,SpatialData,ANY,ANY,ANY-method}
 \title{The `SpatialData` class}
 \usage{
 SpatialData(
@@ -116,9 +117,9 @@ SpatialData(
 
 \S4method{tables}{SpatialData}(x)
 
-\S4method{[[}{SpatialData,character,ANY}(x, i) <- value
+\S4method{[[}{SpatialData,character,ANY,ANY}(x, i) <- value
 
-\S4method{[[}{SpatialData,ANY,ANY}(x, i) <- value
+\S4method{[[}{SpatialData,ANY,ANY,ANY}(x, i) <- value
 }
 \arguments{
 \item{images}{list of \code{\link{SpatialDataImage}}s}
