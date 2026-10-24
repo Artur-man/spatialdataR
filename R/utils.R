@@ -167,18 +167,18 @@
 # validate OME version
 .val_ome_ver <- \(v) {
     ok <- length(v) == 1 && is.character(v) && (v <- gsub("-.*", "", v)) %in% sprintf("0.%d", seq_len(6))
-    if (!ok) stop("invalid OME 'version'; expected '0.x' where x is 1-6")
+    if (!ok) stop("invalid OME-NGFF (OME-Zarr) 'version'; expected '0.x' where x is 1-6")
     return(v)
 }
 
 # validate SpatialData version
 .val_sd_ver <- \(v, type) {
-  type <- match.arg(type, c("image", "label", "point", "shape"))
+  type <- match.arg(type, c("table", "image", "label", "point", "shape"))
   ok <- length(v) == 1 && 
     is.character(v) && 
     v %in% sprintf("0.%d", seq_len(if(type == "point") 2 else 3))
-  if (!ok) stop("invalid SpatialData 'version'; expected '0.x' where x is 1-3 ", 
-                "for image/label/shape and 1-2 for point")
+  if (!ok) stop("invalid SpatialData element version; expected '0.x' where x is 1-3 ", 
+                "for image/label/shape and 1-2 for point and tables")
   return(v)
 }
 

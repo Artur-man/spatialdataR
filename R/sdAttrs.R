@@ -94,7 +94,7 @@ SpatialDataAttrs <- \(x, type=c("image", "label", "point", "shape"),
                                                    \(.) list(label = .)))))
         res <- c(res,
                  list(
-                   version=.get_ome_version(ver),
+                   version=.ome_ver_from_sd(ver),
                    multiscales=
                      list(
                        list(
@@ -199,7 +199,7 @@ setMethod("$", "SpatialDataAttrs", \(x, name) x[[name]])
         x$multiscales[[1]]$version %||%
         x$omero$version %||% 
         x$ome$version
-    if (!length(v)) stop("couldn't find 'version' in 'spatialdata_attrs'")
+    if (!length(v)) stop("couldn't find OME-NGFF (OME-Zarr) version")
     .val_ome_ver(v)
 }
 
@@ -215,13 +215,13 @@ setMethod("$", "SpatialDataAttrs", \(x, name) x[[name]])
     x
 }
 
-.get_ome_version <- \(x) {
+.ome_ver_from_sd <- \(x) {
   switch(as.character(x), 
          "0.1" = "0.4",
          "0.2" = "0.4-dev-spatialdata",
          "0.3" = "0.5-dev-spatialdata",
-         stop("Invalid SpatialDataImage/Label format/version! ", 
-              "Must be 0.1, 0.2, or 0.3"))
+         stop("Invalid SpatialData Image/Label element version; ", 
+              "expected '0.x' where x is 1-3"))
 }
 
 # internal use only!
