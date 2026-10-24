@@ -2,18 +2,10 @@
 z <- list(v01="blobs.zarr", v02="blobs_v3.zarr")
 zv <- list(
     v01 = list(
-        image = "0.1",
-        label = "0.1",
-        point = "0.1",
-        shape = "0.2",
-        table = "0.1"
+        image="0.1", label="0.1", point="0.1", shape="0.2", table="0.1"
     ),
     v02 = list(
-        image = "0.3",
-        label = "0.3",
-        point = "0.2",
-        shape = "0.3",
-        table = "0.2"
+        image="0.3", label="0.3", point="0.2", shape="0.3", table="0.2"
     )
 )
 
@@ -73,7 +65,7 @@ for (v in names(z)) {
             f <- match.fun(el)
             expect_equal(version(f(x)), zv[[v]][[el]])
         }
-        # TODO: match.fun matches with base::table
+        # match.fun matches with base::table
         expect_equal(version(table(x)), zv[[v]][["table"]])
     })
 }

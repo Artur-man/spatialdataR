@@ -409,8 +409,8 @@ setReplaceMethod("instances", c("SingleCellExperiment", "ANY"), \(x, value) {
 #' @returns
 #' for single elements, a character string; 
 #' for \link{SpatialData} objects, if \code{simplify=TRUE} (default), 
-#' a \code{tibble} where rows=elements and columns=layers/elements/paths. 
-#' if \code{simplify=FALSE}, a depth-3 list where levels=layers/elements/paths.
+#' a \code{tibble} where rows=elements and columns=layers/elements/versions. 
+#' if \code{simplify=FALSE}, a depth-3 list where levels=layers/elements/versions.
 #' 
 #' @examples
 #' zs <- file.path("extdata", "blobs.zarr")

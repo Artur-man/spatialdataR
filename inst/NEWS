@@ -2,7 +2,7 @@ changes in version 0.99.47
 
 - support 'affine' coordinate transformations for
   point/shape elements via 'duckspatial::ST_affine'
-- added 'version()' to retrieve versions of SpatialData container and elements
+- added 'version()' to retrieve format versions of SpatialData elements
 
 changes in version 0.99.46
 
@@ -54,7 +54,7 @@ changes in version 0.99.39
 
 - class revision: SpatialData slots were base::list, now prototyped 
   S4Vectors::SimpleList with layer-specific properties & validation
-- added 'path()' to retrieve on-disk paths of spatial data elements
+- added 'path()' to retrieve on-disk paths of SpatialData elements
 
 changes in version 0.99.38
 
