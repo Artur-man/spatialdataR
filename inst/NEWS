@@ -2,6 +2,7 @@ changes in version 0.99.47
 
 - support 'affine' coordinate transformations for
   point/shape elements via 'duckspatial::ST_affine'
+- added 'version()' to retrieve versions of SpatialData container and elements
 
 changes in version 0.99.46
 
@@ -14,7 +15,6 @@ changes in version 0.99.45
 - setup auto-benchmarks
 - add contribution guidelines
 - code style and efficiency improvements
-<<<<<<< HEAD
 - added read support from S3 object storage for
   "images", "labels", "points", "shapes" elements
 - added new 'CTunit()' helper function
