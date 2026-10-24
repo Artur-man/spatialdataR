@@ -101,11 +101,13 @@ test_that(".val_sd_ver()", {
     expect_error(.val_sd_ver("0.30", "image"))
     expect_error(.val_sd_ver(c("0.3", "0.4"), "image"))
     expect_error(.val_sd_ver("0.3", "point"))
+    expect_error(.val_sd_ver("0.3", "table"))
     # valid
     expect_silent(x <- .val_sd_ver(v <- "0.3", "image"))
     expect_silent(x <- .val_sd_ver(v <- "0.3", "label"))
     expect_silent(x <- .val_sd_ver(v <- "0.3", "shape"))
     expect_silent(x <- .val_sd_ver(v <- "0.2", "point"))
+    expect_silent(x <- .val_sd_ver(v <- "0.2", "table"))
     expect_type(x, "character")
     expect_length(x, 1)
     expect_identical(x, v)

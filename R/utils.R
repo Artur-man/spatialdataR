@@ -176,9 +176,9 @@
   type <- match.arg(type, c("table", "image", "label", "point", "shape"))
   ok <- length(v) == 1 && 
     is.character(v) && 
-    v %in% sprintf("0.%d", seq_len(if(type == "point") 2 else 3))
-  if (!ok) stop("invalid SpatialData element version; expected '0.x' where x is 1-3 ", 
-                "for image/label/shape and 1-2 for point and table")
+    v %in% sprintf("0.%d", seq_len(if(type %in% c("point", "table")) 2 else 3))
+  if (!ok) stop("invalid SpatialData element version; expected '0.x' where ", 
+                "x is 1-3 for image/label/shape and 1-2 for point and table")
   return(v)
 }
 

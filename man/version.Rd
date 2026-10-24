@@ -17,11 +17,11 @@
 \S4method{version}{SpatialData}(x, simplify = TRUE, ...)
 }
 \arguments{
+\item{x}{\code{\link{SpatialData}} object or one of its elements.}
+
 \item{simplify}{logical scalar; whether to flatten paths into a tibble.}
 
 \item{...}{ignored.}
-
-\item{object}{\code{\link{SpatialData}} object or one of its elements.}
 }
 \value{
 for single elements, a character string; 
