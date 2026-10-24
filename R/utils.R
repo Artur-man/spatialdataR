@@ -178,7 +178,7 @@
     is.character(v) && 
     v %in% sprintf("0.%d", seq_len(if(type == "point") 2 else 3))
   if (!ok) stop("invalid SpatialData element version; expected '0.x' where x is 1-3 ", 
-                "for image/label/shape and 1-2 for point and tables")
+                "for image/label/shape and 1-2 for point and table")
   return(v)
 }
 
