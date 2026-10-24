@@ -78,7 +78,7 @@ setGeneric("feature_key", \(x, ...) standardGeneric("feature_key"))
 setGeneric("feature_key<-", \(x, value) standardGeneric("feature_key<-"))
 setGeneric("instance_key", \(x, ...) standardGeneric("instance_key"))
 setGeneric("instance_key<-", \(x, value) standardGeneric("instance_key<-"))
-setGeneric("format", \(x, ...) standardGeneric("format"))
+setGeneric("version", \(x, ...) standardGeneric("version"))
 
 # uts ----
 

@@ -220,7 +220,7 @@ setMethod("$", "SpatialDataAttrs", \(x, name) x[[name]])
          "0.1" = "0.4",
          "0.2" = "0.4-dev-spatialdata",
          "0.3" = "0.5-dev-spatialdata",
-         stop("Invalid SpatialDataImage/Label format! ", 
+         stop("Invalid SpatialDataImage/Label format/version! ", 
               "Must be 0.1, 0.2, or 0.3"))
 }
 
@@ -399,7 +399,7 @@ setReplaceMethod("instances", c("SingleCellExperiment", "ANY"), \(x, value) {
 
 # version ----
 
-#' @name format
+#' @name version
 #' @title Retrieve versions of \code{SpatialData} elements
 #' 
 #' @param object \code{\link{SpatialData}} object or one of its elements.
@@ -418,27 +418,27 @@ setReplaceMethod("instances", c("SingleCellExperiment", "ANY"), \(x, value) {
 #' sd <- readSpatialData(zs)
 #' 
 #' # element-wise
-#' format(shape(sd))
+#' version(shape(sd))
 #' 
 #' # object-wide
-#' format(sd)
-#' format(sd, FALSE)$labels
+#' version(sd)
+#' version(sd, FALSE)$labels
 #' 
 NULL
 
 #' @export
-#' @rdname format
-setMethod("format", "SpatialDataElement", \(x) format(meta(x)))
+#' @rdname version
+setMethod("version", "SpatialDataElement", \(x) version(meta(x)))
 
 #' @export
-#' @rdname format
-setMethod("format", "SpatialDataAttrs", \(x) x$spatialdata_attrs$version)
+#' @rdname version
+setMethod("version", "SpatialDataAttrs", \(x) x$spatialdata_attrs$version)
 
 #' @export
-#' @rdname format
-setMethod("format", "SingleCellExperiment", \(x) meta(x)$version)
+#' @rdname version
+setMethod("version", "SingleCellExperiment", \(x) meta(x)$version)
 
 #' @export
-#' @rdname format
-setMethod("format", "SpatialData", \(x, simplify=TRUE, ...)
-          .element_apply(x, format, "format", simplify))
+#' @rdname version
+setMethod("version", "SpatialData", \(x, simplify=TRUE, ...)
+          .element_apply(x, version, "version", simplify))

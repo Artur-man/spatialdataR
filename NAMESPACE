@@ -74,7 +74,6 @@ exportMethods(extent)
 exportMethods(feature_key)
 exportMethods(flip)
 exportMethods(flop)
-exportMethods(format)
 exportMethods(geom_type)
 exportMethods(getTable)
 exportMethods(hasTable)
@@ -114,6 +113,7 @@ exportMethods(tableNames)
 exportMethods(tables)
 exportMethods(transform)
 exportMethods(translation)
+exportMethods(version)
 importFrom(BiocGenerics,
   as.data.frame,
   colnames,
